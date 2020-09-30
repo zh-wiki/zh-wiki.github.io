@@ -30,6 +30,8 @@ category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
 skip_render:
+  - README.md
+  - '_posts/**/embed_page/**'
 
 # Writing
 new_post_name: :title.md # File name of new posts
@@ -56,6 +58,9 @@ prismjs:
   preprocess: true
   line_number: true
   tab_replace: ''
+
+marked:
+  gfm: true
 
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
@@ -94,6 +99,29 @@ pagination_dir: page
 include:
 exclude:
 ignore:
+
+## Plugins: https://hexo.io/plugins/
+### JsonContent
+jsonContent:
+  meta: false
+  pages:
+    title: false
+    date: false
+    path: false
+    text: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: true
+    tags: true
+    categories: false
+  ignore:
+    - 404.html
+    
+### Creat sitemap
+sitemap:
+  path: sitemap.xml
 
 # Extensions
 ## Plugins: https://hexo.io/plugins/
