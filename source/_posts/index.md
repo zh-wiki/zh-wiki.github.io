@@ -1,4 +1,4 @@
 ---
 title: Welcome Zh-Wiki Site
 ---
-![avatar](/images/index.jpg)
+![avatar](../images/index.jpg)
