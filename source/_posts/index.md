@@ -1,4 +1,4 @@
 ---
 title: Welcome Zh-Wiki Site
 ---
-![avatar](./index.jpg)
+<img src="./index/index.jpg" alt="avatar" style="zoom:200%;" />

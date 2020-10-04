@@ -10,6 +10,6 @@ layout: "page"
 
 **理想：** 实现所有吹出去的牛逼
 
-<img src="../../../../../run/media/zh/37d79e2a-26b3-48e0-90aa-88eca3ac3e30/zh-wiki.github.io/source/images/coding.jpeg" alt="理想" style="zoom:200%;" />
+<img src="index/coding.jpeg" alt="理想型" style="zoom:200%;" />
 
-<img src="../../../../../run/media/zh/37d79e2a-26b3-48e0-90aa-88eca3ac3e30/zh-wiki.github.io/source/images/live.jpeg" alt="生活" style="zoom:200%;" />
+<img src="index/live.jpeg" alt="日常办公" style="zoom:200%;" />
