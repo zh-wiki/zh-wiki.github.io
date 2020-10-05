@@ -15,10 +15,10 @@ tags:
 
 2. 配置Typora
 
-   ![image-20201005165456541](./Hexo 博客搭建/image-20201005165456541.png)
+   ![image-20201005210350281](Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/image-20201005210350281.png)
 
 3. 编译
 
    有以下log说明配置成功
 
-   ![image-20201005165756877](./Hexo 博客搭建/image-20201005165756877.png)
+   <img src="Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/image-20201005165756877.png"  />
