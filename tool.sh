@@ -1,3 +1,7 @@
+hexo clean
+sleep 1
+hexo g
+sleep 1
 git add -A
 sleep 1
 git commit -m "sync"
