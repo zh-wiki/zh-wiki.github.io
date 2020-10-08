@@ -200,3 +200,11 @@ sudo pacman -S google-chrome
    export GTK_IM_MODULE=fcitx 
    export QT_IM_MODULE=fcitx 
    export XMODIFIERS="@im=fcitx"
+
+### SSH 的安装与配置
+
+```bash
+pacman -Sy openssh
+ssh-keygen -t rsa -C "xxxxx@xxxxx.com"
+```
+
