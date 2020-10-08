@@ -5,6 +5,12 @@ date: 2020-01-01 00:00:01
 tags:
 ---
 
+## 安装 Hexo
+
+```bash
+sudo npm install --unsafe-perm --verbose -g hexo
+```
+
 ## 同步本地图片与网络图片
 
 1. 安装插件
