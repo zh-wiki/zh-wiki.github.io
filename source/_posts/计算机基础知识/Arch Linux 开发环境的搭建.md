@@ -5,6 +5,8 @@ date: 2020-01-01 00:00:03
 tags:
 ---
 
+
+
 ## Arch Linux 系统安装
 
 主要进行分区，系统的安装，图形服务和必要驱动的安装
@@ -75,6 +77,13 @@ vim /etc/pacman.d/mirrorlist
 pacstrap /mnt base linus linux-firmware
 ```
 
+### 安装基本开发工具包
+
+```bash
+arch-chroot /mnt
+pacman -S base-devel
+```
+
 ### 安装 sudo
 
 ```bash
@@ -112,7 +121,7 @@ genfstab /mnt > /mnt/etc/fstab
 ### 安装 Xorg 图形管理
 
 ```bash
-pacstrap /mnt xorg
+pacstrap /mnt xorg-server xorg-xinit xorg-apps
 ```
 
 ### 安装网络组件
@@ -125,6 +134,13 @@ systemctl enable wpa_supplicant
 systemctl enable networkmanager
 ```
 
+### 安装显卡驱动
+
+```bash
+lspci | grep VGA				//查看显卡是什么型号
+pacman -S xf86-video-intel	  //intel 显卡驱动
+```
+
 ### 安装音频组件
 
 ```bash
@@ -134,18 +150,48 @@ pacstrap /mnt pulseaudio-alsa
 
 ------
 
+## Arch Linux 桌面环境安装
 
+### 窗口管理器 dwm 
 
+1. 安装终端内置浏览器 **w3m**
+
+   ```bash
+   sudo pacman -S w3m
+   ```
+
+2. 下载 **dwm**
+
+   ```bash
+   w3m suckless.org
+   ```
+
+3. 安装
+
+   ```bash
+   sudo make clean install
+   ```
+
+4. 运行dwm
+
+   ```bash
+   vim ~/.xinitrc
+   startx
+   ```
+   
+   在 **.xinitrc** 中 加入 **exec dwm**
+   
+   ------
+   
+   
 ## Arch Linux 基础配置
 
-系统安装成功之后的配置.
+###    安装中文字体
 
-### 安装中文字体
-
-```bash
-sudo pacman -S noto-fonts noto-fonts-cjk noto-fonts-emoji
-sudo vim /etc/locale.gen
-```
+   ```bash
+   sudo pacman -S noto-fonts noto-fonts-cjk noto-fonts-emoji
+   sudo vim /etc/locale.gen
+   ```
 
 取消 **/etc/locale.gen** 中 以下 的注释
 
