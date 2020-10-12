@@ -179,11 +179,11 @@ pacstrap /mnt pulseaudio-alsa
    startx
    ```
    
-   在 **.xinitrc** 中 加入 **exec dwm**
-   
-   ------
-   
-   
+   在 **.xinitrc** 中 加入 **exec dwm** 
+### 窗口管理器 i3
+
+
+
 ## Arch Linux 基础配置
 
 ###    安装中文字体

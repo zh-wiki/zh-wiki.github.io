@@ -1,11 +1,17 @@
 ---
 title: 高通 Camx capture request 代码流程
 toc: true
-date: 2020-01-01 00:00:02
+date: 2020-01-01 00:00:04
 tags: 
 ---
 
-### 预览和拍照的代码流程
+### 预览和拍照的 request 代码流程
+
+#### 主体框架图
+
+![process capture request](%E9%AB%98%E9%80%9A%20Camx%20capture%20request%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/image-20201012225025652.png)
+
+#### 详细代码调用流程
 
 ```c++
 chi_override_process_request() //chxextensioninterface.cpp 
