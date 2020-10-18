@@ -249,8 +249,27 @@ sudo pacman -S google-chrome
 
 ### SSH 的安装与配置
 
-```bash
-pacman -Sy openssh
-ssh-keygen -t rsa -C "xxxxx@xxxxx.com"
-```
+1. 安装ssh
+
+   ```bash
+   pacman -Sy openssh
+   ```
+
+2. 生成密钥
+
+   ```bash
+   ssh-keygen -t rsa -C "xxxxx@xxxxx.com"
+   ```
+
+3. 通过 SSH 远程连接问题
+
+   ```bash
+   vim /etc/ssh/sshd_config
+   ```
+
+   在文件的末尾加以下配置
+
+   LoginGraceTime 120
+   PermitRootLogin yes
+   StrictModes yes
 
