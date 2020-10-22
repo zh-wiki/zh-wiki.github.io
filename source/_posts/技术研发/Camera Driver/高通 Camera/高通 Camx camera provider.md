@@ -36,7 +36,9 @@ bool LegacyCameraProviderImpl_2_4::initialize() {
 	mModule = new CameraModule(rawModule);
 	    
 	//我们可以跟进去看看 init() 非常明显 实际就是进行 camx 的初始化，camxhal3entry.cpp  { CAMX:: init()} 
-	err = mModule->init();
+    //int CameraModule::init() 这个函数将会调用 getNumberOfCameras() 
+    //就此 camx-chi 的一系列初始化操作 拉开序幕
+	err = mModule->init(); 
 	    
 	// 设置回调函数，用于接受camx-chi的数据和事件
 	err = mModule->setCallbacks(this);
@@ -50,18 +52,17 @@ init 函数结束之后，Camera Provider进程便一直便存在于系统中,�
 
 #### camera provider 和 camera hal3 的联系
 
-HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底层硬件抽象出来的一个软件层，该层定义了自己的一套通用标准接口,平台厂商务必按照以下规则定义自己的Module:
+HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底层硬件抽象出来的一个软件层，该层定义了自己的一套通用标准接口,平台厂商务必按照以下规则定义自己的Module
 
 - 每一个硬件都通过hw_module_t来描述,具有固定的名字HMI
 - 每一个硬件都必须实现hw_module_t里面的open方法,用于打开硬件设备,并返回对应的操作接口集合
 - 硬件的操作接口集合使用hw_device_t 来描述,并可以通过自定义一个更大的包含hw_device_t的结构体来拓展硬件操作集合
 
-其中代表模块的是hw_module_t,对应的设备是通过hw_device_t来描述,这两者的定义如下:
-
 ##### HAL3 结构体介绍
 
 <details>
 <summary>hw_module_t</summary>
+
 ```c++
 typedef struct hw_module_t {
     uint32_t tag;
@@ -85,6 +86,7 @@ typedef struct hw_module_t {
 
 <details>
 <summary>hw_module_methods_t</summary>
+
 ```c++
 typedef struct hw_module_methods_t {
     /** Open a specific device */
@@ -97,20 +99,21 @@ typedef struct hw_module_methods_t {
 
 <details>
 <summary>hw_device_t</summary>
+
 ```c++
 typedef struct hw_device_t {
     uint32_t tag;
     uint32_t version;
     struct hw_module_t* module;
+
 #ifdef __LP64__
     uint64_t reserved[12];
 #else
     uint32_t reserved[12];
 #endif
     int (*close)(struct hw_device_t* device);
-
+    
 } hw_device_t;
-
 ```
 
 </details>
@@ -127,7 +130,9 @@ typedef struct hw_device_t {
 
 <details>
 <summary>camera_module_t</summary>
-​```c++
+
+
+```c++
 typedef struct camera_module {
     hw_module_t common;
     int (*get_number_of_cameras)(void);
@@ -147,8 +152,10 @@ typedef struct camera_module {
 
 </details>
 
+
 <details>
 <summary>camera3_device_t</summary>
+
 ```c++
 typedef struct camera3_device {
     hw_device_t common;
@@ -156,6 +163,7 @@ typedef struct camera3_device {
     void *priv;
 } camera3_device_t;
 ```
+
 </details>
 
 - camera_module_t包含了hw_module_t，主要用于表示Camera模块，其中定义了诸如get_number_of_cameras以及set_callbacks等扩展方法
@@ -223,3 +231,5 @@ JumpTableHAL3 g_jumpTableHAL3 =
     notify
 };
 ```
+
+</details>
