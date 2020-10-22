@@ -81,7 +81,6 @@ typedef struct hw_module_t {
 #endif
 } hw_module_t;
 ```
-
 </details>
 
 <details>
@@ -103,15 +102,15 @@ typedef struct hw_device_t {
     uint32_t tag;
     uint32_t version;
     struct hw_module_t* module;
-
 #ifdef __LP64__
     uint64_t reserved[12];
 #else
     uint32_t reserved[12];
 #endif
     int (*close)(struct hw_device_t* device);
-    
+
 } hw_device_t;
+
 ```
 
 </details>
@@ -128,7 +127,7 @@ typedef struct hw_device_t {
 
 <details>
 <summary>camera_module_t</summary>
-```c++
+​```c++
 typedef struct camera_module {
     hw_module_t common;
     int (*get_number_of_cameras)(void);
@@ -157,7 +156,6 @@ typedef struct camera3_device {
     void *priv;
 } camera3_device_t;
 ```
-
 </details>
 
 - camera_module_t包含了hw_module_t，主要用于表示Camera模块，其中定义了诸如get_number_of_cameras以及set_callbacks等扩展方法
@@ -196,10 +194,6 @@ CAMX_VISIBILITY_PUBLIC camera_module_t HAL_MODULE_INFO_SYM =
 static Dispatch g_dispatchHAL3(&g_jumpTableHAL3);
 ```
 
-<details>
-<summary>g_jumpTableHAL3</summary>
-
-
 ```c++
 JumpTableHAL3 g_jumpTableHAL3 =
 {
@@ -229,5 +223,3 @@ JumpTableHAL3 g_jumpTableHAL3 =
     notify
 };
 ```
-
-</details>
