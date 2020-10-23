@@ -1,0 +1,12 @@
+---
+title: Repo 常用命令
+toc: true
+date: 2020-01-01 00:00:02
+tags: 计算机指令
+---
+
+### repo 拉下来的代码如何新建分支
+1. repo start xxx(分支名) --all
+	
+### repo sync 的时候如果有本地未提交的修改
+1. repo forall -cv "git reset HEAD --hard; git clean -df " -j32

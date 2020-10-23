@@ -2,7 +2,7 @@
 title: Hexo 博客搭建
 toc: true
 date: 2020-01-01 00:00:01
-tags:
+tags: Hexo
 ---
 
 ## 安装 Hexo

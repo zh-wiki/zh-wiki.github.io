@@ -2,7 +2,7 @@
 title: Ubuntu 开发环境的搭建
 toc: true
 date: 2020-01-01 00:00:00
-tags:
+tags: Ubuntu
 ---
 
 ## VirtualBox 修复'modprobe vboxdrv' 报错
