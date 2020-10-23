@@ -12,3 +12,4 @@ adb shell "echo dumpSensorEEPROMData=1 >> /vendor/etc/camera/camxoverridesetting
 ```
 
 数据存放位置： **/data/vendor/camera/xxx_kbuffer_OTP.txt**
+
