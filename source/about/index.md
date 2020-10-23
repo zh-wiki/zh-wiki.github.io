@@ -12,4 +12,3 @@ layout: "page"
 
 <img src="index/coding.jpeg" alt="理想型" style="zoom:200%;" />
 
-<img src="index/live.jpeg" alt="日常办公" style="zoom:200%;" />
