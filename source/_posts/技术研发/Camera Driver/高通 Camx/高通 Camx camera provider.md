@@ -124,6 +124,8 @@ HwEnvironment* HwEnvironment::GetInstance()
 
 init 函数结束之后，Camera Provider进程便一直便存在于系统中,监听着来自Camera Service的调用。
 
+之后 camx init 流程请阅读 **《高通 Camx init 流程》**
+
 ### camera provider 和 camera hal3 的联系
 
 HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底层硬件抽象出来的一个软件层，该层定义了自己的一套通用标准接口,平台厂商务必按照以下规则定义自己的Module
