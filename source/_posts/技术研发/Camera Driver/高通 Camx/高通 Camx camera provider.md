@@ -5,9 +5,7 @@ date: 2020-01-01 00:00:01
 tags: 
 ---
 
-### Camera Provider
-
-#### 概览
+### 概览
 
 <img src="%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021102734471.png" alt="camera provider" style="zoom:80%;" />
 
@@ -16,7 +14,7 @@ tags:
 - 通过 **HIDL** 与Camera Service 跨进程通信
 - 通过 **dlopen** 方式加载一系列动态库 （Camera HAL3结构的so），在高通Camera 是指 camx-chi 架构
 
-#### Provider init 代码流程
+### Provider init 代码流程
 
 ![init 代码流程](%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021143242020.png)
 
@@ -27,30 +25,106 @@ tags:
 ```c++
 // hardware/interfaces/camera/provider/2.4/default/LegacyCameraProviderImpl_2_4.cpp
 bool LegacyCameraProviderImpl_2_4::initialize() {
-	camera_module_t *rawModule;
-	 
-	//获取 camera.qcom.so 可以理解为和 camxhal3entry.cpp 建立联系
-	int err = hw_get_module(CAMERA_HARDWARE_MODULE_ID, (const hw_module_t **)&rawModule); 		
-	 
-	//将 camera.qcom.so 获取的句柄保存在 mModule 对象中 ，该函数定义在 CameraModule.cpp 
-	mModule = new CameraModule(rawModule);
-	    
-	//我们可以跟进去看看 init() 非常明显 实际就是进行 camx 的初始化，camxhal3entry.cpp  { CAMX:: init()} 
+    camera_module_t *rawModule;
+    
+    //获取 camera.qcom.so 可以理解为和 camxhal3entry.cpp 建立联系
+    int err = hw_get_module(CAMERA_HARDWARE_MODULE_ID, (const hw_module_t **)&rawModule); 		
+    
+    //将 camera.qcom.so 获取的句柄保存在 mModule 对象中 ，该函数定义在 CameraModule.cpp 
+    mModule = new CameraModule(rawModule);
+    
+    //我们可以跟进去看看 init() 非常明显 实际就是进行 camx 的初始化，camxhal3entry.cpp  { CAMX:: init()} 
     //int CameraModule::init() 这个函数将会调用 getNumberOfCameras() 
     //就此 camx-chi 的一系列初始化操作 拉开序幕
-	err = mModule->init(); 
-	    
-	// 设置回调函数，用于接受camx-chi的数据和事件
-	err = mModule->setCallbacks(this);
-	   
-	mNumberOfLegacyCameras = mModule->getNumberOfCameras();
-	return false; // mInitFailed
+    err = mModule->init(); 
+    
+    // 设置回调函数，用于接受camx-chi的数据和事件
+    err = mModule->setCallbacks(this);
+    
+    mNumberOfLegacyCameras = mModule->getNumberOfCameras();
+    return false; // mInitFailed
+}
+```
+
+**err = mModule->init();** 代码调用流程
+
+```c++
+//hardware/interfaces/camera/common/1.0/default/CameraModule.cpp
+int CameraModule::init() {
+    ATRACE_CALL();
+    int res = OK;
+    if (getModuleApiVersion() >= CAMERA_MODULE_API_VERSION_2_4 &&
+            mModule->init != NULL) {
+        ATRACE_BEGIN("camera_module->init");
+        res = mModule->init();
+        ATRACE_END();
+    }
+    //将会走到 vendor/proprietary/camx/src/coer/hal/camxhal3.cpp中
+    mNumberOfCameras = getNumberOfCameras();
+    mCameraInfoMap.setCapacity(mNumberOfCameras);
+    return res;
+}
+```
+
+ **mNumberOfCameras = getNumberOfCameras();** 代码调用流程
+
+```c++
+//vendor/proprietary/camx/src/coer/hal/camxhal3.cpp
+static int get_number_of_cameras(void)
+{
+    ......
+    INT numCameras;
+    //将会走到 vendor/proprietary/camx/src/coer/hal/camxhal3module.cpp中
+    //会调用到 HAL3Module的构造函数
+    numCameras = static_cast<int>(HAL3Module::GetInstance()->GetNumCameras());
+    ......
+    return numCameras;
+}
+```
+
+**HAL3Module的构造函数大致流程**
+
+```c++
+//vendor/proprietary/camx/src/coer/hal/camxhal3module.cpp
+HAL3Module::HAL3Module()
+{
+    CamxResult result = CamxResultSuccess;
+    CSLCameraPlatform CSLPlatform = {};
+
+    CAMX_LOG_CONFIG(CamxLogGroupHAL, "***************************************************");
+    CAMX_LOG_CONFIG(CamxLogGroupHAL, "SHA1:     %s", CAMX_SHA1);
+    CAMX_LOG_CONFIG(CamxLogGroupHAL, "COMMITID: %s", CAMX_COMMITID);
+    CAMX_LOG_CONFIG(CamxLogGroupHAL, "BUILD TS: %s", CAMX_BUILD_TS);
+    CAMX_LOG_CONFIG(CamxLogGroupHAL, "***************************************************");
+    ......
+    //到了这个位置已经是很亲切了，干到camx了
+    m_pStaticSettings          = HwEnvironment::GetInstance()->GetStaticSettings();
+    ......
+}
+```
+
+**开始启动Camx的初始化流程**
+
+```c++
+HwEnvironment* HwEnvironment::GetInstance()
+{
+    static HwEnvironment s_HwEnvironmentSingleton;
+
+    /// @todo (CAMX-2684) Workaround a chicken-and-egg problem in HwEnvironment initialization...clean up later
+    // By calling InitCaps here, the call it triggers back into GetInstance will not cause HwEnvironment to be recreated.
+    // Branch prediction should make this essentially free
+    if (InitCapsInitialize == s_HwEnvironmentSingleton.m_initCapsStatus)
+    {
+        s_HwEnvironmentSingleton.InitCaps();
+    }
+
+    return &s_HwEnvironmentSingleton;
 }
 ```
 
 init 函数结束之后，Camera Provider进程便一直便存在于系统中,监听着来自Camera Service的调用。
 
-#### camera provider 和 camera hal3 的联系
+### camera provider 和 camera hal3 的联系
 
 HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底层硬件抽象出来的一个软件层，该层定义了自己的一套通用标准接口,平台厂商务必按照以下规则定义自己的Module
 
@@ -58,7 +132,7 @@ HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底
 - 每一个硬件都必须实现hw_module_t里面的open方法,用于打开硬件设备,并返回对应的操作接口集合
 - 硬件的操作接口集合使用hw_device_t 来描述,并可以通过自定义一个更大的包含hw_device_t的结构体来拓展硬件操作集合
 
-##### HAL3 结构体介绍
+#### HAL3 结构体介绍
 
 <details>
 <summary>hw_module_t</summary>
@@ -126,7 +200,7 @@ typedef struct hw_device_t {
 
 - 由此可见谷歌定义的HAL接口,并不能满足绝大部分HAL模块的需要,所以谷歌想出了一个比较好的解决方式,那便是将这两个基本结构嵌入到更大的结构体内部,同时在更大的结构内部定义了各自模块特有的方法,用于实现模块的功能,这样,一来对上保持了HAL的统一规范,二来也扩展了模块的功能
 
-##### 高通 camx HAL3 结构体
+#### 高通 camx HAL3 结构体
 
 <details>
 <summary>camera_module_t</summary>
@@ -169,7 +243,7 @@ typedef struct camera3_device {
 - camera_module_t包含了hw_module_t，主要用于表示Camera模块，其中定义了诸如get_number_of_cameras以及set_callbacks等扩展方法
 - camera3_device_t包含了hw_device_t,主要用来表示Camera设备,其中定义了camera3_device_ops操作方法集合,用来实现正常获取图像数据以及控制Camera的功能
 
-##### Camera HAL3 的实现
+#### Camera HAL3 的实现
 
 ```c++
 CAMX_VISIBILITY_PUBLIC camera_module_t HAL_MODULE_INFO_SYM =
