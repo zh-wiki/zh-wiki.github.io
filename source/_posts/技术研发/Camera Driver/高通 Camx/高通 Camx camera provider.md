@@ -204,7 +204,7 @@ JumpTableHAL3 g_jumpTableHAL3 =
 
 在系统初始化的时候，系统会去运行"android.hardware.camera.provider@2.4-service_64"程序启动Provider进程，并加入HW Service Manager中接受统一管理。在改过程中实例化一个 LegacyCameraProviderImpl_2_4 对象，通过 hw_get_module 标准方法 获取HAL 模块。这边指的是 **camera.qcom.so** 。
 
-**camera provider init 函数详解**
+#### Camera Provider Init 函数总括
 
 ```c++
 // hardware/interfaces/camera/provider/2.4/default/LegacyCameraProviderImpl_2_4.cpp
@@ -232,7 +232,20 @@ bool LegacyCameraProviderImpl_2_4::initialize() {
 
 init 函数结束之后，Camera Provider进程便一直便存在于系统中,监听着来自Camera Service的调用。
 
-**err = mModule->init();** 代码调用流程
+#### Camera Provider Init 分解
+
+通过上面的总括可以理解为 **Provider** 最终目的获取 **Camx-Chi** 的 **setting** 以及 **HW** 资源。然后保存起来返回给上层，供后面使用。
+
+二话不说先上一张大图
+
+![](%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201026113612765.png)
+
+##### get_number_of_cameras 函数介绍
+
+这个函数是一切美好的开始，她的最先调用就是上面介绍的provide init 函数的 **CameraModule::init()** 
+
+<details>
+<summary>CameraModule::init</summary>
 
 ```c++
 //hardware/interfaces/camera/common/1.0/default/CameraModule.cpp
@@ -252,7 +265,12 @@ int CameraModule::init() {
 }
 ```
 
- **mNumberOfCameras = getNumberOfCameras();** 代码调用流程
+</details> 
+
+**CameraModule::init()** ，这个函数调用 **getNumberOfCameras()** 。最终调用到 **get_number_of_cameras()** 这个函数已经是干到camx了。
+
+<details>
+<summary>get_number_of_cameras</summary>
 
 ```c++
 //vendor/proprietary/camx/src/coer/hal/camxhal3.cpp
@@ -268,7 +286,15 @@ static int get_number_of_cameras(void)
 }
 ```
 
-**HAL3Module的构造函数大致流程**
+</details> 
+
+这个函数主要有两个作用：
+
+- 是通过 **HAL3Module** 类的构造函数会获取 CAMX-CHI 的信息
+- 加载 **com.qti.chi.override.so**  模块，映射 CAMX-CHI 之间的接口
+
+<details>
+<summary>HAL3Module::HAL3Module</summary>
 
 ```c++
 //vendor/proprietary/camx/src/coer/hal/camxhal3module.cpp
@@ -284,12 +310,26 @@ HAL3Module::HAL3Module()
     CAMX_LOG_CONFIG(CamxLogGroupHAL, "***************************************************");
     ......
     //到了这个位置已经是很亲切了，干到camx了
-    m_pStaticSettings          = HwEnvironment::GetInstance()->GetStaticSettings();
+    m_pStaticSettings = HwEnvironment::GetInstance()->GetStaticSettings();
     ......
 }
 ```
 
-**开始启动Camx的初始化流程**
+</details> 
+
+##### HwEnvironment::Initialize() 函数介绍
+
+通过 **HAL3Module** 构造函数会调用 **HwEnvironment** 类的构造，主体功能在 **HwEnvironment::Initialize()** 中实现
+
+
+
+
+
+
+
+
+
+
 
 ```c++
 HwEnvironment* HwEnvironment::GetInstance()
