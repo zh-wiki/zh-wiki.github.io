@@ -5,7 +5,7 @@ date: 2020-01-01 00:00:01
 tags: 
 ---
 
-### 概览
+# 概览
 
 <img src="%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021102734471.png" alt="camera provider" style="zoom:80%;" />
 
@@ -14,7 +14,7 @@ tags:
 - 通过 **HIDL** 与Camera Service 跨进程通信
 - 通过 **dlopen** 方式加载一系列动态库 （Camera HAL3结构的so），在高通Camera 是指 camx-chi 架构
 
-### camera provider 和 camera hal3 的联系
+# camera provider 和 camera hal3 的联系
 
 HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底层硬件抽象出来的一个软件层，该层定义了自己的一套通用标准接口,平台厂商务必按照以下规则定义自己的Module
 
@@ -22,7 +22,7 @@ HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底
 - 每一个硬件都必须实现hw_module_t里面的open方法,用于打开硬件设备,并返回对应的操作接口集合
 - 硬件的操作接口集合使用hw_device_t 来描述,并可以通过自定义一个更大的包含hw_device_t的结构体来拓展硬件操作集合
 
-#### HAL3 结构体介绍
+## HAL3 结构体介绍
 
 <details>
 <summary>hw_module_t</summary>
@@ -90,7 +90,7 @@ typedef struct hw_device_t {
 
 - 由此可见谷歌定义的HAL接口,并不能满足绝大部分HAL模块的需要,所以谷歌想出了一个比较好的解决方式,那便是将这两个基本结构嵌入到更大的结构体内部,同时在更大的结构内部定义了各自模块特有的方法,用于实现模块的功能,这样,一来对上保持了HAL的统一规范,二来也扩展了模块的功能
 
-#### 高通 camx HAL3 结构体
+## 高通 camx HAL3 结构体
 
 <details>
 <summary>camera_module_t</summary>
@@ -133,7 +133,7 @@ typedef struct camera3_device {
 - camera_module_t包含了hw_module_t，主要用于表示Camera模块，其中定义了诸如get_number_of_cameras以及set_callbacks等扩展方法
 - camera3_device_t包含了hw_device_t,主要用来表示Camera设备,其中定义了camera3_device_ops操作方法集合,用来实现正常获取图像数据以及控制Camera的功能
 
-#### Camera HAL3 的实现
+## Camera HAL3 的实现
 
 ```c++
 CAMX_VISIBILITY_PUBLIC camera_module_t HAL_MODULE_INFO_SYM =
@@ -198,13 +198,13 @@ JumpTableHAL3 g_jumpTableHAL3 =
 
 </details>
 
-### Provider init 代码流程
+# Provider init 代码流程
 
 ![init 代码流程](%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021143242020.png)
 
 在系统初始化的时候，系统会去运行"android.hardware.camera.provider@2.4-service_64"程序启动Provider进程，并加入HW Service Manager中接受统一管理。在改过程中实例化一个 LegacyCameraProviderImpl_2_4 对象，通过 hw_get_module 标准方法 获取HAL 模块。这边指的是 **camera.qcom.so** 。
 
-#### Camera Provider Init 函数总括
+## Camera Provider Init 函数总括
 
 ```c++
 // hardware/interfaces/camera/provider/2.4/default/LegacyCameraProviderImpl_2_4.cpp
@@ -232,7 +232,7 @@ bool LegacyCameraProviderImpl_2_4::initialize() {
 
 init 函数结束之后，Camera Provider进程便一直便存在于系统中,监听着来自Camera Service的调用。
 
-#### Camera Provider Init 分解
+## Camera Provider Init 分解
 
 通过上面的总括可以理解为 **Provider** 最终目的获取 **Camx-Chi** 的 **setting** 以及 **HW** 资源。然后保存起来返回给上层，供后面使用。
 
@@ -240,12 +240,10 @@ init 函数结束之后，Camera Provider进程便一直便存在于系统中,�
 
 ![](%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201026113612765.png)
 
-##### get_number_of_cameras 函数介绍
+### get_number_of_cameras 函数介绍
 
 这个函数是一切美好的开始，她的最先调用就是上面介绍的provide init 函数的 **CameraModule::init()** 
 
-<details>
-<summary>CameraModule::init</summary>
 
 ```c++
 //hardware/interfaces/camera/common/1.0/default/CameraModule.cpp
@@ -265,12 +263,8 @@ int CameraModule::init() {
 }
 ```
 
-</details> 
-
 **CameraModule::init()** ，这个函数调用 **getNumberOfCameras()** 。最终调用到 **get_number_of_cameras()** 这个函数已经是干到camx了。
 
-<details>
-<summary>get_number_of_cameras</summary>
 
 ```c++
 //vendor/proprietary/camx/src/coer/hal/camxhal3.cpp
@@ -286,15 +280,11 @@ static int get_number_of_cameras(void)
 }
 ```
 
-</details> 
-
 这个函数主要有两个作用：
 
 - 是通过 **HAL3Module** 类的构造函数会获取 CAMX-CHI 的信息
 - 加载 **com.qti.chi.override.so**  模块，映射 CAMX-CHI 之间的接口
 
-<details>
-<summary>HAL3Module::HAL3Module</summary>
 
 ```c++
 //vendor/proprietary/camx/src/coer/hal/camxhal3module.cpp
@@ -315,35 +305,252 @@ HAL3Module::HAL3Module()
 }
 ```
 
-</details> 
-
-##### HwEnvironment::Initialize() 函数介绍
+### HwEnvironment::Initialize() 函数介绍
 
 通过 **HAL3Module** 构造函数会调用 **HwEnvironment** 类的构造，主体功能在 **HwEnvironment::Initialize()** 中实现
 
-
-
-
-
-
-
-
-
-
+<details>
+<summary>HwEnvironment::Initialize()</summary>
 
 ```c++
-HwEnvironment* HwEnvironment::GetInstance()
+//vendor/proprietary/camx/src/coer/camxhwenvironment.cpp
+CamxResult HwEnvironment::Initialize()
 {
-    static HwEnvironment s_HwEnvironmentSingleton;
+    CamxResult              result                  = CamxResultSuccess;
+    CSLInitializeParams     params                  = { 0 };
+    SettingsManager*        pStaticSettingsManager  = SettingsManager::Create(NULL);
+    ExternalComponentInfo*  pExternalComponent      = GetExternalComponent();
 
-    /// @todo (CAMX-2684) Workaround a chicken-and-egg problem in HwEnvironment initialization...clean up later
-    // By calling InitCaps here, the call it triggers back into GetInstance will not cause HwEnvironment to be recreated.
-    // Branch prediction should make this essentially free
-    if (InitCapsInitialize == s_HwEnvironmentSingleton.m_initCapsStatus)
+    if (NULL != pStaticSettingsManager)
     {
-        s_HwEnvironmentSingleton.InitCaps();
+        const StaticSettings* pStaticSettings = pStaticSettingsManager->GetStaticSettings();
+
+        if (NULL != pStaticSettings)
+        {
+            params.mode                                           = pStaticSettings->CSLMode;
+            params.emulatedSensorParams.enableSensorSimulation    = pStaticSettings->enableSensorEmulation;
+            params.emulatedSensorParams.dumpSensorEmulationOutput = pStaticSettings->dumpSensorEmulationOutput;
+
+            OsUtils::StrLCpy(params.emulatedSensorParams.sensorEmulatorPath,
+                             pStaticSettings->sensorEmulatorPath,
+                             sizeof(pStaticSettings->sensorEmulatorPath));
+
+            OsUtils::StrLCpy(params.emulatedSensorParams.sensorEmulator,
+                             pStaticSettings->sensorEmulator,
+                             sizeof(pStaticSettings->sensorEmulator));
+
+            result = CSLInitialize(&params);
+
+            if (CamxResultSuccess == result)
+            {
+                // Query the camera platform
+                result = QueryHwContextStaticEntryMethods();
+            }
+
+            if (CamxResultSuccess == result)
+            {
+                m_pHwFactory = m_staticEntryMethods.CreateHwFactory();
+
+                if (NULL == m_pHwFactory)
+                {
+                    CAMX_ASSERT_ALWAYS_MESSAGE("Failed to create the HW factory");
+                    result = CamxResultEFailed;
+                }
+            }
+
+            if (CamxResultSuccess == result)
+            {
+                m_pSettingsManager = m_pHwFactory->CreateSettingsManager();
+
+                if (NULL == m_pSettingsManager)
+                {
+                    CAMX_ASSERT_ALWAYS_MESSAGE("Failed to create the HW settings manager");
+                    result = CamxResultEFailed;
+                }
+            }
+
+            if (CamxResultSuccess == result)
+            {
+                m_staticEntryMethods.GetHWBugWorkarounds(&m_workarounds);
+            }
+        }
+
+        pStaticSettingsManager->Destroy();
+        pStaticSettingsManager = NULL;
     }
 
-    return &s_HwEnvironmentSingleton;
+    CAMX_ASSERT(NULL != pExternalComponent);
+    if ((CamxResultSuccess == result) && (NULL != pExternalComponent))
+    {
+        result = ProbeChiComponents(pExternalComponent, &m_numExternalComponent);
+    }
+
+    if (CamxResultSuccess == result)
+    {
+        // Load the OEM sensor capacity customization functions
+        CAMXCustomizeCAMXInterface camxInterface;
+        camxInterface.pGetHWEnvironment = HwEnvironment::GetInstance;
+        CAMXCustomizeEntry(&m_pOEMInterface, &camxInterface);
+    }
+
+    if (CamxResultSuccess != result)
+    {
+        CAMX_LOG_ERROR(CamxLogGroupCore, "FATAL ERROR: Raise SigAbort. HwEnvironment initialization failed");
+        m_numberSensors = 0;
+        OsUtils::RaiseSignalAbort();
+    }
+    else
+    {
+        m_initCapsStatus = InitCapsInitialize;
+    }
+    return result;
 }
 ```
+
+</details>
+
+通过上面的代码可以看出 **HwEnvironment::Initialize()** 做的事情还是挺多的。下面我们开始分析
+
+1. 获取camx的相关配置
+
+   SettingsManager*        pStaticSettingsManager  = SettingsManager::Create(NULL);
+
+   经过一系列调用最终会调到以下代码，加载配置参数
+
+   ```c++
+   //vendor/proprietary/camx/src/coer/camxsettingsmanager.cpp
+   CamxResult SettingsManager::Initialize(
+       StaticSettings* pStaticSettings)
+   {
+       ......    
+           // Populate the default settings
+           InitializeDefaultSettings();
+           InitializeDefaultDebugSettings();
+           
+           // Load the override settings from our override settings stores
+           result = LoadOverrideSettings(m_pOverrideSettingsStore);
+           result = LoadOverrideProperties(m_pOverrideSettingsStore, TRUE);
+           result = ValidateSettings();
+   
+           DumpSettings();
+           m_pOverrideSettingsStore->DumpOverriddenSettings();
+       ......
+       	UpdateLogSettings();
+   
+       	return result;
+   }
+   ```
+
+2. 利用加载好的配置参数去初始化相关模块
+
+   result = CSLInitialize(&params);
+
+   经过一个跳转表格进入以下代码
+
+   <details>
+   <summary>CamxResult CSLInitializeHW()</summary>
+
+   ```c++
+   //vendor/proprietary/camx/src/csl/hw/camxcslhw.cpp
+   CamxResult CSLInitializeHW()
+   {
+       CamxResult result                          = CamxResultEFailed;
+       CHAR       syncDeviceName[CSLHwMaxDevName] = {0};
+   
+       if (FALSE == CSLHwIsHwInstanceValid())
+       {
+           if (TRUE == CSLHwEnumerateAndAddCSLHwDevice(CSLInternalHwVideodevice, CAM_VNODE_DEVICE_TYPE))
+           {
+               if (TRUE == CSLHwEnumerateAndAddCSLHwDevice(CSLInternalHwVideoSubdevice, CAM_CPAS_DEVICE_TYPE))
+               {
+                   CAMX_LOG_VERBOSE(CamxLogGroupCSL, "Platform family=%d, version=%d.%d.%d, cpas version=%d.%d.%d",
+                       g_CSLHwInstance.pCameraPlatform.family,
+                       g_CSLHwInstance.pCameraPlatform.platformVersion.majorVersion,
+                       g_CSLHwInstance.pCameraPlatform.platformVersion.minorVersion,
+                       g_CSLHwInstance.pCameraPlatform.platformVersion.revVersion,
+                       g_CSLHwInstance.pCameraPlatform.CPASVersion.majorVersion,
+                       g_CSLHwInstance.pCameraPlatform.CPASVersion.minorVersion,
+                       g_CSLHwInstance.pCameraPlatform.CPASVersion.revVersion);
+   
+                   if (FALSE == CSLHwEnumerateAndAddCSLHwDevice(CSLInternalHwVideoSubdeviceAll, 0))
+                   {
+                       CAMX_LOG_ERROR(CamxLogGroupCSL, "No KMD devices found");
+                   }
+                   else
+                   {
+                       CAMX_LOG_VERBOSE(CamxLogGroupCSL, "Total KMD subdevices found =%d", g_CSLHwInstance.kmdDeviceCount);
+                   }
+                   // Init the memory manager data structures here
+                   CamX::Utils::Memset(g_CSLHwInstance.memManager.bufferInfo, 0, sizeof(g_CSLHwInstance.memManager.bufferInfo));
+                   // Init the sync manager here
+                   g_CSLHwInstance.lock->Lock();
+                   g_CSLHwInstance.pSyncFW = CamX::SyncManager::GetInstance();
+                   if (NULL != g_CSLHwInstance.pSyncFW)
+                   {
+                       CSLHwGetSyncHwDevice(syncDeviceName, CSLHwMaxDevName);
+                       CAMX_LOG_VERBOSE(CamxLogGroupCSL, "Sync device found = %s", syncDeviceName);
+                       result = g_CSLHwInstance.pSyncFW->Initialize(syncDeviceName);
+                       if (CamxResultSuccess != result)
+                       {
+                           CAMX_LOG_ERROR(CamxLogGroupCSL, "CSL failed to initialize SyncFW");
+                           result = g_CSLHwInstance.pSyncFW->Destroy();
+                           g_CSLHwInstance.pSyncFW = NULL;
+                       }
+                   }
+                   g_CSLHwInstance.lock->Unlock();
+                   CSLHwInstanceSetState(CSLHwValidState);
+                   result = CamxResultSuccess;
+                   CAMX_LOG_VERBOSE(CamxLogGroupCSL, "Successfully acquired requestManager");
+               }
+               else
+               {
+                   CAMX_LOG_ERROR(CamxLogGroupCSL, "Failed to acquire CPAS");
+               }
+           }
+           else
+           {
+               CAMX_LOG_ERROR(CamxLogGroupCSL, "Failed to acquire requestManager invalid");
+           }
+       }
+       else
+       {
+           CAMX_LOG_ERROR(CamxLogGroupCSL, "CSL in Invalid State");
+       }
+       return result;
+   
+   }
+   ```
+
+   </details>
+
+   这一部分我个人理解为，遍历所有kernel端的设备。获取相关接口以及需要的事件。与HAL层建立联系。具体分析以后可以单独写一篇文章分析
+
+3. 根据平台获取对应的入口方法
+
+   这个暂时不知道是个什么鬼，先这样理解
+
+   result = QueryHwContextStaticEntryMethods();
+
+   经过一系列的调用最终是跑到了这里
+
+   ```c++
+   //vendor/proprietary/camx/src/csl/hwl/titan17x/camxtitan17xhwl.cpp
+   CamxResult Titan17xGetStaticEntryMethods(
+       HwContextStaticEntry* pStaticEntry)
+   {
+       CamxResult result = CamxResultSuccess;
+   
+       pStaticEntry->Create                               = &Titan17xContext::Create;
+       pStaticEntry->GetStaticMetadataKeysInfo            = &Titan17xContext::GetStaticMetadataKeysInfo;
+       pStaticEntry->GetStaticCaps                        = &Titan17xContext::GetStaticCaps;
+       pStaticEntry->CreateHwFactory                      = &Titan17xFactory::Create;
+       pStaticEntry->QueryVendorTagsInfo                  = &Titan17xContext::QueryVendorTagsInfo;
+       pStaticEntry->GetHWBugWorkarounds                  = &Titan17xContext::GetHWBugWorkarounds;
+       pStaticEntry->QueryExternalComponentVendorTagsInfo = &Titan17xContext::QueryExternalComponentVendorTagsInfo;
+   
+       return result;
+   }
+   ```
+
+   
+
