@@ -552,5 +552,67 @@ CamxResult HwEnvironment::Initialize()
    }
    ```
 
-   
+4. 获取CHI各个节点的接口
 
+   result = ProbeChiComponents(pExternalComponent, &m_numExternalComponent);
+
+   遍历所有chi相关的.so库，将各个接口保存起来。这一块的代码撸的比较少，先记录这么多
+
+到此处 HwEnvironment::Initialize() 这个函数就介绍的差不多了。日后慢慢完善
+
+### HwEnvironment::InitCaps()  函数介绍
+
+<details>
+<summary>HwEnvironment::InitCaps()</summary>
+
+```c++
+VOID HwEnvironment::InitCaps()
+{
+    CamxResult    result = CamxResultSuccess;
+
+    m_pHWEnvLock->Lock();
+
+    if (InitCapsRunning == m_initCapsStatus ||
+        InitCapsDone == m_initCapsStatus)
+    {
+        m_pHWEnvLock->Unlock();
+        return;
+    }
+
+    m_initCapsStatus = InitCapsRunning;
+
+    if (CamxResultSuccess == result)
+    {
+        EnumerateDevices();
+        ProbeImageSensorModules();
+        EnumerateSensorDevices();
+        InitializeSensorSubModules();
+        InitializeSensorStaticCaps();
+
+        result = m_staticEntryMethods.GetStaticCaps(&m_platformCaps[0]);
+        // copy the static capacity to remaining sensor's
+        for (UINT index = 1; index < m_numberSensors; index++)
+        {
+            Utils::Memcpy(&m_platformCaps[index], &m_platformCaps[0], sizeof(m_platformCaps[0]));
+        }
+        if (NULL != m_pOEMInterface->pInitializeExtendedPlatformStaticCaps)
+        {
+            m_pOEMInterface->pInitializeExtendedPlatformStaticCaps(&m_platformCaps[0], m_numberSensors);
+        }
+    }
+
+    CAMX_ASSERT(CamxResultSuccess == result);
+
+    if (CamxResultSuccess == result)
+    {
+        InitializeHwEnvironmentStaticCaps();
+    }
+
+    m_initCapsStatus = InitCapsDone;
+
+    m_pHWEnvLock->Unlock();
+}
+
+```
+
+</details>
