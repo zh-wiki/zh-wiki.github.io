@@ -74,7 +74,7 @@ vim /etc/pacman.d/mirrorlist
 ### 安装系统基本组件
 
 ```bash
-pacstrap /mnt base linus linux-firmware
+pacstrap /mnt base linux linux-firmware
 ```
 
 ### 安装基本开发工具包
@@ -99,6 +99,7 @@ visudo
 ```bash
 arch-chroot /mnt
 useradd -G wheel -m 用户名
+passwad 用户名
 ```
 
 ### 安装 Grub

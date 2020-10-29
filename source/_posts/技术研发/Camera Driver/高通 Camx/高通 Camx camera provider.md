@@ -566,6 +566,7 @@ CamxResult HwEnvironment::Initialize()
 <summary>HwEnvironment::InitCaps()</summary>
 
 ```c++
+//vendor/proprietary/camx/src/coer/camxhwenvironment.cpp
 VOID HwEnvironment::InitCaps()
 {
     CamxResult    result = CamxResultSuccess;
@@ -616,3 +617,54 @@ VOID HwEnvironment::InitCaps()
 ```
 
 </details>
+
+这一波操作应该就是枚举各个Camera模组，检测硬件是否可以通信成功。
+
+1. Probe Sensor 
+
+   经过上述函数中 ProbeImageSensorModules() 会走到  ImageSensorModuleData::Probe()
+
+   ```c++
+   //vendor/proprietary/camx/src/core/camximagesensormoduledata.cpp
+   CamxResult ImageSensorModuleData::Probe(
+                                                            BOOL*   pDetected,
+                                                            INT32*  pDeviceIndex)
+   {
+       ......
+       //获取上下电时序
+       UINT powerUpCmdSize     = GetSensorDataObject()->GetPowerSequenceCmdSize(TRUE);
+       UINT powerDownCmdSize   = GetSensorDataObject()->GetPowerSequenceCmdSize(FALSE);
+       
+       //创建命令包管理
+       result = CmdBufferManager::Create("ImageSensorPacketManager", &packetResourceParams, &pPacketManager);
+       
+       //向CSL下发probe命令
+       result = CSLImageSensorProbe(pProbePacket->GetMemHandle(), pProbePacket->GetOffset(), &probeResult);
+       ......
+   }
+   ```
+
+   该函数的主要作用就是创建probe sensor 的命令包，然后下发到CSL
+
+   将命令包提交到 CSL 通过ioctl下发到 Kernel
+
+   ```c++
+   //vendor/qcom/proprietary/camx/src/csl/hw/camxcslhwinternalsensor.cpp
+   CamxResult CSLHwInternalProbeSensorHW(
+                                             CSLMemHandle hPacket,
+                                             SIZE_T       offset,
+                                             INT32*       pDeviceIndex)
+   {
+       ......
+       ioctlCmd.op_code     = CAM_SENSOR_PROBE_CMD;
+       ioctlCmd.size        = sizeof(ioctlCmd.handle);
+       ioctlCmd.handle_type = CAM_HANDLE_MEM_HANDLE;
+       ioctlCmd.reserved    = 0;
+       ioctlCmd.handle      = hPacket;
+       result = pLoophw->deviceOp.Ioctl(pLoophw, VIDIOC_CAM_CONTROL, &ioctlCmd);
+       ......
+   }
+   ```
+
+   
+
