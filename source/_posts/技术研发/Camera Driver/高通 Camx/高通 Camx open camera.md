@@ -100,16 +100,6 @@ CameraDeviceClient的初始化工作流程：
 - 实例化FrameProcessorBase对象并且将内部的Camera3Device对象传入其中,这样就建立了和Camera3Device的联系,之后将内部线程运行起来,等待来自Camera3Device的结果
 - 将CameraDeviceClient注册到内部,这样就建立了与CameraDeviceClient的联系
 
-关键结构体的介绍
-
-1. **Camera3Device** 
-   - 主要实现了对Camera Provider 的ICameraDeviceCallbacks会调接口的实现，通过该接口接收来自Provider的结果上传进而传给CameraDeviceClient
-   - Camera3Device会将事件通过notify方法给到CameraDeviceClient
-   - Camera3Device中RequestThread主要用于处理Request的接收与下发工作
-2. **FrameProcessBase**
-   - meta data以及image data 会给到 FrameProcessBase
-   - FrameProcessBase主要用于metadata以及image data的中转处理
-
 ```c++
 //file : frameworks/av/services/camera/libcameraservice/api2/CameraDeviceClient.cpp
 status_t CameraDeviceClient::initialize(sp<CameraProviderManager> manager, const String8& monitorTags)
@@ -122,3 +112,32 @@ status_t CameraDeviceClient::initialize(sp<CameraProviderManager> manager, const
    |   |   |   |--> mDevice->initialize(providerPtr, monitorTags)   //这里的mDevice 是在 Camera2ClientBase初始化的时候传入的  mDevice(new Camera3Device(cameraId))
 ```
 
+### Camera3Device 结构介绍
+
+- 主要实现了对Camera Provider 的ICameraDeviceCallbacks会调接口的实现，通过该接口接收来自Provider的结果上传进而传给CameraDeviceClient
+- Camera3Device会将事件通过notify方法给到CameraDeviceClient
+- Camera3Device中RequestThread主要用于处理Request的接收与下发工作
+
+Camera3Device 初始化
+
+- 通过调用CameraProviderManager的openSession方法打开并获取一个Provider中的ICameraDeviceSession代理
+- 实例化一个HalInterface对象,将之前获取的ICameraDeviceSession代理存入其中,最后将RequestThread线程运行起来,等待request的下发
+
+```c++
+//file: device3/Camera3Device.cpp
+ status_t Camera3Device::initialize(sp<CameraProviderManager> manager, const String8& monitorTags)
+ |--> status_t res = manager->openSession(mId.string(), this, /*out*/ &session)   //CameraProviderManager openSession
+ //file: common/CameraProviderManager.cpp
+   |   |--> status_t CameraProviderManager::openSession(const std::string &id, const sp<device::V3_2::ICameraDeviceCallback>& callback, sp<device::V3_2::ICameraDeviceSession> *session)
+   |   |   |--> auto interface = deviceInfo3->startDeviceInterface<CameraProviderManager::ProviderInfo::DeviceInfo3::InterfaceT>()
+   |   |   |   |--> const sp<provider::V2_4::ICameraProvider> interface = startProviderInterface()  //获取provider
+   |   |   |   |--> interface->getCameraDeviceInterface_V3_x(name, [&status, &cameraInterface](hidl_cb) //这里的hidl_cb 指的是回调接口，provider 会将device 指针返回回来，当然这个指针是跨进程能够调用的，具体怎么实现的暂时不清楚，暂且不管
+   |   |   |--> interface->open(callback, [&status, &session](Status s, const sp<device::V3_2::ICameraDeviceSession>& cameraSession)    //这里就调用的provider部分的Device的open接口
+```
+
+
+
+### FrameProcessBase 结构介绍
+
+- meta data以及image data 会给到 FrameProcessBase
+- FrameProcessBase主要用于metadata以及image data的中转处理
