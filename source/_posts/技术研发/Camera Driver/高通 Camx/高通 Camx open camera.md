@@ -141,3 +141,19 @@ Camera3Device 初始化
 
 - meta data以及image data 会给到 FrameProcessBase
 - FrameProcessBase主要用于metadata以及image data的中转处理
+
+# Provider Open 流程
+
+```c++
+//file: device/3.2/default/CameraDevice.cpp
+Return<void> CameraDevice::open(const sp<ICameraDeviceCallback>& callback, ICameraDevice::open_cb _hidl_cb)
+ //这里的mModule 是CameraModule实例，在provider调用etCameraDeviceInterface_V3_x 方法时通过实例化device deviceImpl = new 
+ //android::hardware::camera::device::V3_4::implementation::CameraDevice(mModule, cameraId, mCameraDeviceNames) 传入，
+ //而mModule 是在provider初始化的时候创建，里面获取了camera hw module实例,关于proviser的初始化参见provider_initialize
+ |--> mModule->open(mCameraId.c_str(), reinterpret_cast<hw_device_t**>(&device)) 
+ //file: common/1.0/default/CameraModule.cpp
+ |--> int CameraModule::open(const char* id, struct hw_device_t** device)
+ |   |--> filterOpenErrorCode(mModule->common.methods->open(&mModule->common, id, device))
+```
+
+# Camx Open 流程
