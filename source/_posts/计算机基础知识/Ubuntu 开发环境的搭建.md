@@ -5,7 +5,32 @@ date: 2020-01-01 00:00:00
 tags: Ubuntu
 ---
 
-## VirtualBox 修复'modprobe vboxdrv' 报错
+# ubuntu18.04 virtualBox windows 支持usb
+
+1. 执行命令
+   sudo usermod -aG vboxusers 用户名（让virtualbox 能识别到主机的usb）
+
+2. cat /etc/group | grep vboxusers （查看是否已经添加成功）
+
+3. 下载插件 [下载链接](https://download.java.net/virtualbox/).
+
+4. 下载插件比较慢，已经提前下载好的。适用于（virtualbox 5.2.34) 
+
+5. 安装插件
+
+   ![操作示意图](Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201111105153041.png)
+
+6. 设置 USB 协议的支持
+
+   ![操作示意图](Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201111105232574.png)
+
+7. reboot （重启ubuntu）
+
+8. 如果重启电脑之后，虚拟机可以扫描到USB设备，但是Ｗin7中提示驱动未能安装成功。
+   解决方法：
+   下载驱动精灵。安装USB驱动。
+
+# VirtualBox 修复'modprobe vboxdrv' 报错
 
 1. 问题发生背景 
 
@@ -13,32 +38,32 @@ tags: Ubuntu
 
 2. 解决方法
 
-   1. 更新整个系统
+   a.更新整个系统
 
-      ```bash
-      sudo apt update
-      sudo apt upgrade
-      ```
+   ```bash
+   sudo apt update
+   sudo apt upgrade
+   ```
 
-   2. 重新安装对应内核版本的头文件,和virtualbox的驱动
+   b.重新安装对应内核版本的头文件,和virtualbox的驱动
 
-      ```bash
-      sudo apt install --reinstall linux-headers-$(uname -r) virtualbox-dkms dkms
-      ```
+   ```bash
+   sudo apt install --reinstall linux-headers-$(uname -r) virtualbox-dkms dkms
+   ```
 
-   3. 加载驱动重启
+   c.加载驱动重启
 
-      ```bash
-      sudo modprobe vboxdrv
-      reboot
-      ```
+   ```bash
+   sudo modprobe vboxdrv
+   reboot
+   ```
 
 
 3. 注意事项
 
    更新驱动的时候，会重新编译驱动，所以要选择对应的gcc编译器，太老的估计会凉。
 
-## 支持多版本的gcc
+# 支持多版本的gcc
 
 1. 系统安装ok后默认gcc 版本是 v-7.x。我们先搞一个低版本的gcc
 
@@ -51,24 +76,24 @@ tags: Ubuntu
 
 2. 管理多个版本的gcc
 
-   1. 查看存在几个版本的gcc
+   a.查看存在几个版本的gcc
 
-      ```bash
-      ls -l /usr/bin/gcc
-      ```
+   ```bash
+   ls -l /usr/bin/gcc
+   ```
 
-   2. 分别为gcc和g++添加管理组
+   b.分别为gcc和g++添加管理组
 
-      ```bash
-      sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 40
-      sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 40
-      ```
+   ```bash
+   sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 40
+   sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 40
+   ```
 
-   3. 能添加就能删除,从管理组中删除
+   c.能添加就能删除,从管理组中删除
 
-      ```bash
-      sudo update-alternatives --remove gcc /usr/bin/gcc-4.8
-      ```
+   ```bash
+   sudo update-alternatives --remove gcc /usr/bin/gcc-4.8
+   ```
 
 3. 设置ok使用以下指令选择gcc的版本
 
