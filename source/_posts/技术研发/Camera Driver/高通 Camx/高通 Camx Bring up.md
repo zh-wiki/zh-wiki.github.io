@@ -191,6 +191,73 @@ tags:
    - 配置 position 摄像头位置 前摄 后摄 或者 后辅
    - 配置 CSIInfo mipi 通道
 
+# 双摄帧同步导通
+
+1. 将camx平台默认的几个属性开启
+
+   ```xml
+    //camxsettings.xml      
+   <VariableName>multiCameraEnable</VariableName>
+   <VariableName>multiCameraHWSyncMask</VariableName>
+   <VariableName>multiCameraFrameSyncMask</VariableName>
+   <VariableName>multiCameraFPSMatchMask</VariableName>
+   //高通的case还给了这两个，j19S项目代码中没有找到这连个配置，没有配置也是OK的
+   adb shell "echo multiCamera3ASync=QTI >> /vendor/etc/camera/camxoverridesettings.txt"
+   adb shell "echo multiCameraSATEnable=1 >> /vendor/etc/camera/camxoverridesettings.txt"
+   ```
+
+2. 在Camera Id 映射的位置指定双摄的Camera Id
+
+   ```c++
+   static LogicalCameraConfiguration logicalCameraConfigurationKamorta[] =
+   {
+       /*cameraId cameraType              exposeFlag phyDevCnt  sensorId, transition low, high, smoothZoom, alwaysOn  realtimeEngine            primarySensorID, hwMaster*/
+       {0,        LogicalCameraType_Default, TRUE,      1,    {{0,                    0.0, 0.0,   FALSE,    TRUE,     RealtimeEngineType_IFE}},  0,              0    }, ///< Wide camera
+       {1,        LogicalCameraType_Default, TRUE,      1,    {{2,                    0.0, 0.0,   FALSE,    TRUE,     RealtimeEngineType_IFE}},  2,              2    }, ///< Front camera
+       {2,        LogicalCameraType_Default, TRUE,      1,    {{1,                    0.0, 0.0,   FALSE,    TRUE,     RealtimeEngineType_IFE}},  1,              1    }, ///< Tele camera
+       {3,        LogicalCameraType_Default, TRUE,      1,    {{3,                    0.0, 0.0,   FALSE,    TRUE,     RealtimeEngineType_IFE}},  3,              3    },
+       {4,        LogicalCameraType_RTB,     TRUE,      2,    {{0,                    2.0, 8.0,   FALSE,    TRUE,     RealtimeEngineType_IFE},
+                                                               {2,                    1.0, 2.0,   FALSE,    TRUE,     RealtimeEngineType_IFE}},  0,              0    }, ///< RTB
+   };
+   ```
+
+   在j19S项目中更改了一下参数 。（双摄预览出图是辐摄）
+
+   - 第一个参数: 调节zoom值
+   - 第二个参数: 配置主摄的camera Id
+
+   ![双摄帧同步](%E9%AB%98%E9%80%9A%20Camx%20Bring%20up/image-20201112172851742.png)
+
+   在j19S项目中还有存在一个平台bug （上面介绍的结构体双摄不能为最后一个成员）
+
+   高通给的patch
+
+   ```c++
+   //vendor/qcom/proprietary/chi-cdk / oem/qcom/feature2/chifeature2graphselector/chifeature2graphselector.cpp
+   VOID ChiFeature2GraphSelector::BuildCameraIdSet()
+   {
+       //Add by junwei.zhou according Qcom case num 04763737
+       //fix platform design
+   #ifdef __XIAOMI_CAMERA__
+       m_cameraIdMap.insert({ { cameraIdSetSingle },  SINGLE_CAMERA });
+       m_cameraIdMap.insert({ { cameraIdSetBokeh },   BOKEH_CAMERA });
+       m_cameraIdMap.insert({ { cameraIdSetMulti },   MULTI_CAMERA });
+       m_cameraIdMap.insert({ { cameraIdSetFusion },  FUSION_CAMERA });
+   #else
+       m_cameraIdMap.insert({ { cameraIdSetSingle },  SINGLE_CAMERA });
+       m_cameraIdMap.insert({ { cameraIdSetMulti },   MULTI_CAMERA });
+       m_cameraIdMap.insert({ { cameraIdSetBokeh },   BOKEH_CAMERA });
+       m_cameraIdMap.insert({ { cameraIdSetFusion },  FUSION_CAMERA });
+   #endif
+   }
+   ```
+
+3. 分别配置主摄和辅摄的setting
+
+   - 主摄：masterSettings
+
+   - 辐摄：slaveSettings
+
 # Dump EEprom Data
 
 ```bash
