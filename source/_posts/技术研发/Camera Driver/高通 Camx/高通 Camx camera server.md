@@ -1,8 +1,8 @@
 ---
 title: 高通 Camx camera server
 toc: true
-date: 2020-01-01 00:00:00
-tags: 
+date: 2020-01-01 00:00:01
+tags: 高通Camx
 ---
 
 ### Camera Server

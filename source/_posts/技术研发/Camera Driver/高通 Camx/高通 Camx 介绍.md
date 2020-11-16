@@ -1,15 +1,15 @@
 ---
-title: 高通 Camx init 流程
+title: 高通 Camx 介绍
 toc: true
-date: 2020-01-01 00:00:02
-tags: 
+date: 2020-01-01 00:00:00
+tags: 高通Camx
 ---
 
 ### 概览
 
 #### Camx-CHI 整体框架如下
 
-<img src="%E9%AB%98%E9%80%9A%20Camx%20init%20%E6%B5%81%E7%A8%8B/image-20201026114544241.png" alt="CAMX-CHI" style="zoom: 67%;" />
+![](%E9%AB%98%E9%80%9A%20Camx%20%E4%BB%8B%E7%BB%8D/image-20201026114544241-1605518405452.png)
 
 其中 camx 代表了通用功能性接口的代码实现集合，chi-cdk代表了可定制化需求的代码实现集合，从图中不难看出camx部分对上作为HAL3接口的实现,对下通过v4l2框架与Kernel保持通讯,中间通过互相dlopen so库并获取对方操作接口的方式保持着与CHI的交互。
 
@@ -34,13 +34,3 @@ chi-cdk/中有如下几个主要目录:
 - flash/: 存放着闪光灯模块的配置信息
 - eeprom/: 存放着eeprom外部存储模块的配置信息
 - fd/: 存放了人脸识别模块的配置信息
-
-### Camx Init 总体概览
-
-通过分析 Camera Provider ，已经知道了上层是如何调到底层的Camera Init 流程，大概框架如下
-
-![Provider INIT](%E9%AB%98%E9%80%9A%20Camx%20init%20%E6%B5%81%E7%A8%8B/image-20201026113612765.png)
-
-接下来我们将按照模块化分析camx的内部初始化流程
-
-![CAMX INIT](%E9%AB%98%E9%80%9A%20Camx%20init%20%E6%B5%81%E7%A8%8B/image-20201026130250068.png)
