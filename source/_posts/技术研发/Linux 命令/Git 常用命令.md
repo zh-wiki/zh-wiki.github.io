@@ -2,10 +2,21 @@
 title: Git 常用命令
 toc: true
 date: 2020-01-01 00:00:01
-tags: 
+tags:  Linux 命令
 ---
 
-###  撤销指令
+# 基本配置
+
+1. 所有的命令输出在同一页显示
+
+   ```bash
+   git config --global core.pager ''
+   ```
+
+   
+
+#  撤销指令
+
 1. 撤销工作区的修改
 	**git checkout** 文件名
 	**git checkout** 目录 -f
@@ -18,7 +29,7 @@ tags:
 5. 撤销到上一次提交（本地修改丢失）
 	**git reset --hard HEAD^**
 
-### 保存恢复指令
+# 保存恢复指令
 1. 保存本地未追踪的修改
 	 **git stash save** 路径
 2. 将保存的内容导出
@@ -26,7 +37,7 @@ tags:
 3. 获取保存列表
 	 **git stash list**
 
-### 解决冲突
+# 解决冲突
 这里我分为两种情况：
 1. 代码提到服务器上。
 	a. 首先把自己的提交reset掉。
