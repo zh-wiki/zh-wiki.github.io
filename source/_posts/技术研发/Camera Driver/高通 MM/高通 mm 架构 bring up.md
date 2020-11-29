@@ -5,6 +5,26 @@ date: 2020-00-00 00:00:01
 tags: 高通 mm 
 ---
 
+# OTP Dump 命令
+
+1. 如果camera文件夹在其他路径下
+
+   ```mariadb
+   adb root
+   adb remount
+   adb shell setprop persist.camera.cal.dump 1
+   ```
+
+2. 如果camera文件夹在vendor路径下
+
+   ```mariadb
+   adb shell setprop persist.vendor.camera.cal.dump 1
+   ```
+
+3. 重启机器
+
+
+
 # 双摄帧同步导通
 
 1. sensor setting 的配置
