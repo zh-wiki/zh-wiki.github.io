@@ -5,23 +5,22 @@ date: 2020-00-00 00:00:01
 tags: 高通 mm 
 ---
 
-# OTP Dump 命令
+#  Dump OTP 数据
 
-1. 如果camera文件夹在其他路径下
+1. 如果camera文件夹在vendor路径下
+
+   ![camera 配置路径](%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%20bring%20up/image-20201130153505584.png)
 
    ```mariadb
    adb root
    adb remount
-   adb shell setprop persist.camera.cal.dump 1
-   ```
-
-2. 如果camera文件夹在vendor路径下
-
-   ```mariadb
    adb shell setprop persist.vendor.camera.cal.dump 1
+   adb reboot
    ```
 
-3. 重启机器
+2. dump 的数据路径如下
+
+   ![OTP 数据路径](%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%20bring%20up/image-20201130153815551.png)
 
 
 

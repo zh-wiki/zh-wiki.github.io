@@ -6,7 +6,14 @@ tags:
 ---
 
 ### repo 拉下来的代码如何新建分支
-1. repo start xxx(分支名) --all
-	
+
+```bash
+repo start xxx(分支名) --all
+```
+
 ### repo sync 的时候如果有本地未提交的修改
-1. repo forall -cv "git reset HEAD --hard; git clean -df " -j32
+
+```bash
+repo forall -cv "git reset HEAD --hard; git clean -df " -j32
+```
+
