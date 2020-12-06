@@ -5,13 +5,13 @@ date: 2020-01-01 00:00:03
 tags: Arch Linux
 ---
 
+# Arch Linux 系统安装
 
-
-## Arch Linux 系统安装
+------
 
 主要进行分区，系统的安装，图形服务和必要驱动的安装
 
-### 分区
+## 分区
 
 1. 查看当前分区信息
 
@@ -63,7 +63,7 @@ tags: Arch Linux
    mount /dev/sda1 /mnt
    ```
 
-### 编辑镜像源
+## 编辑镜像源
 
 ```bash
 vim /etc/pacman.d/mirrorlist
@@ -71,20 +71,20 @@ vim /etc/pacman.d/mirrorlist
 
 将中国的源放在文件的开头
 
-### 安装系统基本组件
+## 安装系统基本组件
 
 ```bash
 pacstrap /mnt base linux linux-firmware
 ```
 
-### 安装基本开发工具包
+## 安装基本开发工具包
 
 ```bash
 arch-chroot /mnt
 pacman -S base-devel
 ```
 
-### 安装 sudo
+## 安装 sudo
 
 ```bash
 arch-chroot /mnt
@@ -94,7 +94,7 @@ visudo
 
 删除这一行注释 **%wheel ALL = (ALL) ALL**
 
-### 创建用户
+## 创建用户
 
 ```bash
 arch-chroot /mnt
@@ -102,7 +102,7 @@ useradd -G wheel -m 用户名
 passwad 用户名
 ```
 
-### 安装 Grub
+## 安装 Grub
 
 ```bash
 arch-chroot /mnt
@@ -111,7 +111,7 @@ grub-install --target=i386-pc /dev/sda
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-### 生成 fstab
+## 生成 fstab
 
 该配置不需要 arch-chroot 
 
@@ -119,13 +119,13 @@ grub-mkconfig -o /boot/grub/grub.cfg
 genfstab /mnt > /mnt/etc/fstab
 ```
 
-### 安装 Xorg 图形管理
+## 安装 Xorg 图形管理
 
 ```bash
 pacstrap /mnt xorg-server xorg-xinit xorg-apps
 ```
 
-### 安装网络组件
+## 安装网络组件
 
 ```bash
 pacstrap /mnt dhcpcd wpa_supplicant networkmanager
@@ -135,25 +135,29 @@ systemctl enable wpa_supplicant
 systemctl enable networkmanager
 ```
 
-### 安装显卡驱动
+## 安装显卡驱动
 
 ```bash
 lspci | grep VGA				//查看显卡是什么型号
 pacman -S xf86-video-intel	  //intel 显卡驱动
 ```
 
-### 安装音频组件
+## 安装音频组件
 
 ```bash
 pacstrap /mnt alsa-utils pulseaudio
 pacstrap /mnt pulseaudio-alsa
 ```
 
-------
+
 
 ## Arch Linux 桌面环境安装
 
-### 窗口管理器 dwm 
+------
+
+
+
+## 窗口管理器 dwm 
 
 1. 安装终端内置浏览器 **w3m**
 
@@ -181,13 +185,13 @@ pacstrap /mnt pulseaudio-alsa
    ```
    
    在 **.xinitrc** 中 加入 **exec dwm** 
-### 窗口管理器 i3
+# Arch Linux 基础配置
+
+------
 
 
 
-## Arch Linux 基础配置
-
-###    安装中文字体
+##    安装中文字体
 
    ```bash
    sudo pacman -S noto-fonts noto-fonts-cjk noto-fonts-emoji
@@ -208,7 +212,7 @@ pacstrap /mnt pulseaudio-alsa
 sudo locale-gen
 ```
 
-### 设置 archlinuxcn
+## 设置 archlinuxcn
 
 ```bash
 sudo vim /etc/pacman.conf
@@ -222,13 +226,13 @@ sudo pacman -S archlinuxcn-keyring
 
 Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
 
-### 安装 Chrome
+## 安装 Chrome
 
 ```bash
 sudo pacman -S google-chrome
 ```
 
-### 安装中文输入法
+## 安装中文输入法
 
 1. 安装输入法以及配置工具
 
@@ -248,7 +252,7 @@ sudo pacman -S google-chrome
    export QT_IM_MODULE=fcitx 
    export XMODIFIERS="@im=fcitx"
 
-### SSH 的安装与配置
+## SSH 的安装与配置
 
 1. 安装ssh
 
@@ -274,3 +278,8 @@ sudo pacman -S google-chrome
    PermitRootLogin yes
    StrictModes yes
 
+## vscode zsh 乱码
+
+1. 设置vscode终端字体
+
+   ![设置终端字体](Arch%20Linux%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201206134507082.png)
