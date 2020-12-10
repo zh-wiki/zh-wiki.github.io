@@ -5,6 +5,47 @@ date: 2020-00-00 00:00:00
 tags: 高通 mm 
 ---
 
+# Config Stream 
+
+关键结构体
+
+```c++
+//hardware/libhardware/include/hardware/camera3.h
+typedef struct camera3_stream_configuration {
+	uint32_t num_streams;
+    camera3_stream_t **streams;
+    uint32_t operation_mode;
+    const camera_metadata_t *session_parameters;
+} camera3_stream_configuration_t;
+```
+
+```c++
+typedef struct camera3_stream {
+    int stream_type;
+    uint32_t width;
+    uint32_t height;
+    int format;
+    uint32_t usage;
+    uint32_t max_buffers;
+    void *priv;
+    android_dataspace_t data_space;
+    int rotation;
+    const char* physical_camera_id;
+    void *reserved[6];
+} camera3_stream_t;
+```
+
+主要函数
+
+```c++
+int QCamera3HardwareInterface::configureStreamsPerfLocked(camera3_stream_configuration_t *streamList)
+{
+    
+}
+```
+
+
+
 # Camera INIT 流程
 
 ```c

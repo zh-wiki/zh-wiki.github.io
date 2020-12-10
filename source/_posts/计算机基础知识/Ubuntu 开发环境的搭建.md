@@ -5,6 +5,29 @@ date: 2020-01-01 00:00:00
 tags: Ubuntu
 ---
 
+# Samba 服务共享目录
+
+添加以下配置 /etc/samba/smb.conf
+
+
+
+```bash
+[文件夹名]
+	path = #目录路径
+	browseable = ye   #可查看共享文件
+	guest ok = yes        #所有人均可访问共享目录
+	writable = yes        #允许写入
+	public = yes            #允许匿名用户访问
+```
+
+配置结束重启服务
+
+```bash
+sudo service smbd restart
+```
+
+
+
 # ubuntu18.04 virtualBox windows 支持usb
 
 1. 执行命令
