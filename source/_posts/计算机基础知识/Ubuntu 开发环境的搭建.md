@@ -7,9 +7,9 @@ tags: Ubuntu
 
 # Samba 服务共享目录
 
+------
+
 添加以下配置 /etc/samba/smb.conf
-
-
 
 ```bash
 [文件夹名]
@@ -26,9 +26,11 @@ tags: Ubuntu
 sudo service smbd restart
 ```
 
-
-
 # ubuntu18.04 virtualBox windows 支持usb
+
+------
+
+
 
 1. 执行命令
    sudo usermod -aG vboxusers 用户名（让virtualbox 能识别到主机的usb）
@@ -54,6 +56,10 @@ sudo service smbd restart
    下载驱动精灵。安装USB驱动。
 
 # VirtualBox 修复'modprobe vboxdrv' 报错
+
+------
+
+
 
 1. 问题发生背景 
 
@@ -87,6 +93,10 @@ sudo service smbd restart
    更新驱动的时候，会重新编译驱动，所以要选择对应的gcc编译器，太老的估计会凉。
 
 # 支持多版本的gcc
+
+------
+
+
 
 1. 系统安装ok后默认gcc 版本是 v-7.x。我们先搞一个低版本的gcc
 
@@ -124,3 +134,40 @@ sudo service smbd restart
    sudo update-alternatives --config gcc
    sudo update-alternatives --config g++
    ```
+
+# 安装多版本的jdk
+
+------
+
+
+
+1. 首先到官网下载jdk源码包
+
+   [JDK官网](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+
+   [华为JDK网址](https://mirrors.huaweicloud.com/java/jdk/)
+
+2. 安装jdk
+
+   ```bash
+   sudo mkdir /usr/lib/jvm
+   sudo tar -zxvf jdk-7u60-linux-x64.gz -C /usr/lib/jvm #//将jdk包复制到该目录进行解压
+   ```
+
+3. 将jdk注册到系统方便多版本jdk进行切换
+
+   ```bash
+   #只需要将下面的命令中jdk的路径换为自己对应版本的路径就好了
+   sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.8.0_191/bin/java 300
+   sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk1.8.0_191/bin/javac 300
+   ```
+
+4. 系统中切换jdk或者javac
+
+   ```bash
+   sudo update-alternatives --config java
+   sudo update-alternatives --config javac
+   ```
+
+   
+
