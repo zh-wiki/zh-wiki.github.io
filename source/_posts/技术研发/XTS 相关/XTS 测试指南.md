@@ -9,6 +9,13 @@ tags: XTS
 
 ------
 
+## 搭建测试环境
+
+1. sudo apt install aapt
+2. 下载CTS工具包 [DOWNLOAD](https://source.android.com/compatibility/cts/downloads)
+3. 安装对应版本的 JDK
+4. cd 到目录android-cts/tools， 执行./cts-tradefed， 至此将进入CTS运行环境
+
 ## 常用测试命令
 
 1. 测试整个camera
