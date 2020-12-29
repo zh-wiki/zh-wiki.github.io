@@ -121,9 +121,25 @@ VTS是要刷谷歌镜像和boot_debug.img,要用VTS的工具包测试
    run vts -m VtsHalCameraServiceV2_0Target --skip-preconditions -s f5e4190f
    ```
 
+# XTS Debug 方法
 
+------
 
+1. 选择一个FAIL项，开启对应的apk log (先分析apk哪里FAIL ,根据上层去分析底层)
 
+   ![FAIL](XTS%20%E6%B5%8B%E8%AF%95%E6%8C%87%E5%8D%97/image-20201229112720624.png)
+
+   选择测试项关键字 **#test** 前面的字段（上图高亮部分），在opengrok 上面搜索
+
+   ![搜索结果](XTS%20%E6%B5%8B%E8%AF%95%E6%8C%87%E5%8D%97/image-20201229113234726.png)
+
+   开启对应log
+
+   ```bash
+   adb shell setprop log.tag.ExChrsTest VERBOSE
+   ```
+
+2. log 开启之后开始单独测试该项目
 
 > 博客推荐
 >
