@@ -5,13 +5,15 @@ date: 2020-01-01 00:00:01
 tags: Hexo
 ---
 
-## 安装 Hexo
+# (一) 安装 Hexo
+------
 
 ```bash
 sudo npm install --unsafe-perm --verbose -g hexo
 ```
 
-## 同步本地图片与网络图片
+# (二) 同步本地图片与网络图片
+------
 
 1. 安装插件
 
@@ -28,3 +30,11 @@ sudo npm install --unsafe-perm --verbose -g hexo
    有以下log说明配置成功
 
    <img src="Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/image-20201005165756877.png"  />
+
+# (三) Wikitten 主题关闭自动标号
+
+------
+
+**修改路径文件：/themes/Wikitten/layout/common/article.ejs**
+
+![disable toc number](Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/image-20210104093922296.png)
