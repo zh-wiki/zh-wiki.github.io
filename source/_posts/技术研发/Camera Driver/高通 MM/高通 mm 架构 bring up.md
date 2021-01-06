@@ -1,11 +1,14 @@
 ---
 title: 高通 mm 架构 bring up
 toc: true
+list_number: false
 date: 2020-00-00 00:00:01
 tags: 高通 mm 
 ---
 
 # PDAF 调试方法
+
+------
 
 1. 首先设置号相应的log权限
 
@@ -61,6 +64,8 @@ tags: 高通 mm
 
 #  Dump OTP 数据
 
+------
+
 1. 如果camera文件夹在vendor路径下
 
    ![camera 配置路径](%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%20bring%20up/image-20201130153505584.png)
@@ -79,6 +84,8 @@ tags: 高通 mm
 
 
 # 双摄帧同步导通
+
+------
 
 1. sensor setting 的配置
 
@@ -141,3 +148,20 @@ tags: 高通 mm
    
    </details>
 
+# Dump MetaData 
+
+------
+
+1. dump metadata 的命令
+
+   ```bash
+   adb shell dumpsys media.camera > cameraservice_dump.txt
+   ```
+
+2. 动态查看metadata
+
+   ```bash
+   watch -d -n 0.1 "adb shell dumpsys media.camera |grep 'aeTargetFpsRange' -A 3"
+   ```
+
+   

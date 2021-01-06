@@ -5,7 +5,7 @@ date: 2020-12-31 09:34:01
 tags: camera基础知识
 ---
 
-# (一) CMOS Sensor 简介
+# CMOS Sensor 简介
 
 ------
 
@@ -13,7 +13,7 @@ tags: camera基础知识
     <source id="mp4" src="01_cmos_sensor.mp4" type="video/mp4">
 </video>
 
-# (二) Color Science
+# Color Science
 
 ------
 
@@ -21,7 +21,7 @@ tags: camera基础知识
     <source id="mp4" src="02_color_science.mp4" type="video/mp4">
 </video>
 
-# (三) 光学基础
+# 光学基础
 
 ------
 
@@ -29,7 +29,7 @@ tags: camera基础知识
     <source id="mp4" src="03_光学基础.mp4" type="video/mp4">
 </video>
 
-# (四) 图像信号处理
+# 图像信号处理
 
 ------
 
@@ -37,7 +37,7 @@ tags: camera基础知识
     <source id="mp4" src="04_图像信号处理.mp4" type="video/mp4">
 </video>
 
-# (五) 3A系统概述
+# 3A系统概述
 
 ------
 
@@ -45,7 +45,7 @@ tags: camera基础知识
     <source id="mp4" src="05_3A系统概述.mp4" type="video/mp4">
 </video>
 
-# (六) 黑电平与线性化
+# 黑电平与线性化
 
 ------
 
@@ -53,7 +53,7 @@ tags: camera基础知识
     <source id="mp4" src="06_黑电平与线性化.mp4" type="video/mp4">
 </video>
 
-# (七) Green Imbalence
+# Green Imbalence
 
 ------
 
@@ -61,7 +61,7 @@ tags: camera基础知识
     <source id="mp4" src="07_GreenImbalence.mp4" type="video/mp4">
 </video>
 
-# (八) 坏点消除
+# 坏点消除
 
 ------
 
@@ -69,7 +69,7 @@ tags: camera基础知识
     <source id="mp4" src="08_坏点消除.mp4" type="video/mp4">
 </video>
 
-# (九) Lens Shading
+# Lens Shading
 
 ------
 
@@ -77,7 +77,7 @@ tags: camera基础知识
     <source id="mp4" src="09_lens_shading.mp4" type="video/mp4">
 </video>
 
-# (十) Raw Denosie
+# Raw Denosie
 
 ------
 
@@ -85,7 +85,7 @@ tags: camera基础知识
     <source id="mp4" src="10_raw_denosie.mp4" type="video/mp4">
 </video>
 
-# (十一) Dynamic Range And Tone
+# Dynamic Range And Tone
 
 ------
 
@@ -93,7 +93,7 @@ tags: camera基础知识
     <source id="mp4" src="11_dynamic_range_and_tone.mp4" type="video/mp4">
 </video>
 
-# (十二) Demosaic
+# Demosaic
 
 ------
 
@@ -101,7 +101,7 @@ tags: camera基础知识
     <source id="mp4" src="12_Demosaic.mp4" type="video/mp4">
 </video>
 
-# (十三) Color Reporoduciton
+# Color Reporoduciton
 
 ------
 
@@ -109,7 +109,7 @@ tags: camera基础知识
     <source id="mp4" src="13_color_reporoduciton.mp4" type="video/mp4">
 </video>
 
-# (十四) Color Correction
+# Color Correction
 
 ------
 
@@ -117,7 +117,7 @@ tags: camera基础知识
     <source id="mp4" src="14_color_correction.mp4" type="video/mp4">
 </video>
 
-# (十五) Gamma与对比度增强
+# Gamma与对比度增强
 
 ------
 
@@ -125,7 +125,7 @@ tags: camera基础知识
     <source id="mp4" src="15_Gamma与对比度增强.mp4" type="video/mp4">
 </video>
 
-# (十六) Sharpening
+# Sharpening
 
 ------
 
@@ -133,7 +133,7 @@ tags: camera基础知识
     <source id="mp4" src="16_Sharpening.mp4" type="video/mp4">
 </video>
 
-# (十七) Color Space Matrix
+# Color Space Matrix
 
 ------
 
@@ -141,7 +141,7 @@ tags: camera基础知识
     <source id="mp4" src="17_Color_Space_Matrix.mp4" type="video/mp4">
 </video>
 
-# (十八) Spatial Denoise
+# Spatial Denoise
 
 ------
 
@@ -149,7 +149,7 @@ tags: camera基础知识
     <source id="mp4" src="18_spatial_denoise.mp4" type="video/mp4">
 </video>
 
-# (十九) Temor
+# Temor
 
 ------
 
@@ -157,7 +157,7 @@ tags: camera基础知识
     <source id="mp4" src="19_temor.mp4" type="video/mp4">
 </video>
 
-# (二十) Depurple
+# Depurple
 
 ------
 
@@ -165,7 +165,7 @@ tags: camera基础知识
     <source id="mp4" src="20_depurple.mp4" type="video/mp4">
 </video>
 
-# (二十一) ISP 统计信息
+# ISP 统计信息
 
 ------
 
@@ -173,7 +173,7 @@ tags: camera基础知识
     <source id="mp4" src="21_isp统计信息.mp4" type="video/mp4">
 </video>
 
-# (二十二) 自动曝光
+# 自动曝光
 
 ------
 
@@ -181,7 +181,7 @@ tags: camera基础知识
     <source id="mp4" src="22_自动曝光.mp4" type="video/mp4">
 </video>
 
-# (二十三) 自动白平衡
+# 自动白平衡
 
 ------
 
@@ -189,7 +189,7 @@ tags: camera基础知识
     <source id="mp4" src="23_自动白平衡.mp4" type="video/mp4">
 </video>
 
-# (二十四) 自动对焦
+# 自动对焦
 
 ------
 
@@ -197,7 +197,7 @@ tags: camera基础知识
     <source id="mp4" src="24_自动对焦.mp4" type="video/mp4">
 </video>
 
-# (二十五) 闪光灯
+# 闪光灯
 
 ------
 
@@ -205,7 +205,7 @@ tags: camera基础知识
     <source id="mp4" src="25_闪光灯.mp4" type="video/mp4">
 </video>
 
-# (二十六) HDR
+# HDR
 
 ------
 
@@ -213,7 +213,7 @@ tags: camera基础知识
     <source id="mp4" src="26_HDR.mp4" type="video/mp4">
 </video>
 
-# (二十七) 文件格式
+# 文件格式
 
 ------
 
@@ -221,23 +221,23 @@ tags: camera基础知识
     <source id="mp4" src="27_文件格式.mp4" type="video/mp4">
 </video>
 
-# (二十八) Encoder
+# Encoder
 
 ------
 
-## 28.1 上集
+##  上集
 
 <video id="video" controls="" preload="none">
     <source id="mp4" src="28_encoder1.mp4" type="video/mp4">
 </video>
 
-## 28.2 下集
+##  下集
 
 <video id="video" controls="" preload="none">
     <source id="mp4" src="29_encoder2.mp4" type="video/mp4">
 </video>
 
-# (二十九) 图像防抖
+# 图像防抖
 
 ------
 
@@ -245,7 +245,7 @@ tags: camera基础知识
     <source id="mp4" src="30_图像防抖.mp4" type="video/mp4">
 </video>
 
-# (三十) 图像质量评价工具与方法
+# 图像质量评价工具与方法
 
 ------
 
@@ -253,7 +253,7 @@ tags: camera基础知识
     <source id="mp4" src="31_图像质量评价工具与方法.mp4" type="video/mp4">
 </video>
 
-# (三十一) 画质调优
+# 画质调优
 
 ------
 
@@ -261,7 +261,7 @@ tags: camera基础知识
     <source id="mp4" src="32_画质调优.mp4" type="video/mp4">
 </video>
 
-# (三十二) 双摄及景深计算
+# 双摄及景深计算
 
 ------
 
@@ -269,7 +269,7 @@ tags: camera基础知识
     <source id="mp4" src="33_双摄及景深计算.mp4" type="video/mp4">
 </video>
 
-# (三十三) 成像系统仿真
+# 成像系统仿真
 
 ------
 
@@ -277,7 +277,7 @@ tags: camera基础知识
     <source id="mp4" src="34_成像系统仿真.mp4" type="video/mp4">
 </video>
 
-# (三十四) 结构光
+# 结构光
 
 ------
 
@@ -285,7 +285,7 @@ tags: camera基础知识
     <source id="mp4" src="35_结构光.mp4" type="video/mp4">
 </video>
 
-# (三十五) TOF 概述
+# TOF 概述
 
 ------
 
