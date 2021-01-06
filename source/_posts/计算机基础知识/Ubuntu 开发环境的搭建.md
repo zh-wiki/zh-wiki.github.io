@@ -5,7 +5,7 @@ date: 2020-01-01 00:00:00
 tags: Ubuntu
 ---
 
-# Samba 服务共享目录
+# (一) Samba 服务共享目录
 
 ------
 
@@ -26,7 +26,7 @@ tags: Ubuntu
 sudo service smbd restart
 ```
 
-# ubuntu18.04 virtualBox windows 支持usb
+# (二) ubuntu18.04 virtualBox windows 支持usb
 
 ------
 
@@ -55,7 +55,7 @@ sudo service smbd restart
    解决方法：
    下载驱动精灵。安装USB驱动。
 
-# VirtualBox 修复'modprobe vboxdrv' 报错
+# (三) VirtualBox 修复'modprobe vboxdrv' 报错
 
 ------
 
@@ -92,7 +92,7 @@ sudo service smbd restart
 
    更新驱动的时候，会重新编译驱动，所以要选择对应的gcc编译器，太老的估计会凉。
 
-# 支持多版本的gcc
+# (四) 支持多版本的gcc
 
 ------
 
@@ -135,7 +135,7 @@ sudo service smbd restart
    sudo update-alternatives --config g++
    ```
 
-# 安装多版本的jdk
+# (五) 安装多版本的jdk
 
 ------
 
@@ -169,5 +169,13 @@ sudo service smbd restart
    sudo update-alternatives --config javac
    ```
 
-   
+
+# (六) Ubuntu查看端口和释放端口
+
+------
+
+- **查看所有端口：`netstat -tln`**
+- **查看指定端口：`netstat -tln | grep 端口号`**
+- **查看指定端口被那些进程占用：`lsof -i :端口号`**
+- **释放端口及就是杀死占用该端口的进程：`kill -9 进程id`**
 
