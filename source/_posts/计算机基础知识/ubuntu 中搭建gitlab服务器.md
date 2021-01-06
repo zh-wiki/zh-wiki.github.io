@@ -50,6 +50,14 @@ tags: Ubuntu
    sudo apt-get install gitlab-ce
    ```
 
+4. gitlab 常用命令
+
+   ```bash
+   sudo gitlab-ctl start
+   sudo gitlab-ctl stop
+   sudo gitlab-ctl restart
+   ```
+
 gitlab 比较耗费系统资源，所以不要在自己的电脑上进行操作。最好找一台服务器。
 
 # GitLab 的使用

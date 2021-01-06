@@ -179,3 +179,16 @@ sudo service smbd restart
 - **查看指定端口被那些进程占用：`lsof -i :端口号`**
 - **释放端口及就是杀死占用该端口的进程：`kill -9 进程id`**
 
+# Nginx 服务的搭建
+
+------
+
+1. 常用命令 （/usr/local/nginx/sbin）
+
+   ```bash
+   sudo ./nginx 
+   suod ./nginx -s stop
+   ```
+
+   
+
