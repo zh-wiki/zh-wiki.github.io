@@ -153,142 +153,20 @@ int QCamera3HardwareInterface::configureStreamsPerfLocked(camera3_stream_configu
 
 2. 在 **processCaptureRequest** 的时候 ,主要做了3件事情：ChannelInit , ChannelStart, ChannelRequest
 
-   - **INIT Channel**
+   - **`INIT Channel`**
 
-     1. 给数据通道进行 **add_stream** ,初始化流
+     给数据通道进行 **add_stream** , 给下层传递两个重要的回调。
 
-     2. 将QCamera3 处理数据的回调 **QCamera3Stream::dataNotifyCB()** 传递给mm层
+     将 **QCamera3Stream::dataNotifyCB()** 传递给mm层 ，mm层调用该回调将数据传递给 QCamera3Stream层
 
-        <details>
-        <summary> QCamera3Stream::dataNotifyCB()</summary>
+     将 **streamCbRoutine** 回调传递给 QcameraStream 层，用于将数据返回给 QCameraChannel 层
 
-        ```c++
-        void QCamera3Stream::dataNotifyCB(mm_camera_super_buf_t *recvd_frame,
-                                         void *userdata)
-        {
-            CDBG("%s: E\n", __func__);
-            QCamera3Stream* stream = (QCamera3Stream *)userdata;
-            if (stream == NULL ||
-                recvd_frame == NULL ||
-                recvd_frame->bufs[0] == NULL ||
-                recvd_frame->bufs[0]->stream_id != stream->getMyHandle()) {
-                ALOGE("%s: Not a valid stream to handle buf", __func__);
-                return;
-            }
-        
-            mm_camera_super_buf_t *frame =
-                (mm_camera_super_buf_t *)malloc(sizeof(mm_camera_super_buf_t));
-            if (frame == NULL) {
-                ALOGE("%s: No mem for mm_camera_buf_def_t", __func__);
-                stream->bufDone(recvd_frame->bufs[0]->buf_idx);
-                return;
-            }
-            *frame = *recvd_frame;
-            stream->processDataNotify(frame);//调用processDataNotify
-            return;
-        }
-        ```
+   - **`START Channel`**
 
-        </details>
-
-   - **START Channel**
-
-     1. 启动一个 线程函数 **QCamera3Stream::dataProcRoutine()** 监听CMD进行数据处理
-
-        <details>
-        <summary>QCamera3Stream::dataProcRoutine()</summary>
-        
-        ```c++
-        void *QCamera3Stream::dataProcRoutine(void *data)
-        {
-            int running = 1;
-            int ret;
-            QCamera3Stream *pme = (QCamera3Stream *)data;
-            QCameraCmdThread *cmdThread = &pme->mProcTh;
-        
-            cmdThread->setName(mStreamNames[pme->mStreamInfo->stream_type]);
-        
-            LOGD("E");
-            do {
-                do {
-                    ret = cam_sem_wait(&cmdThread->cmd_sem);
-                    if (ret != 0 && errno != EINVAL) {
-                        LOGE("cam_sem_wait error (%s)",
-                               strerror(errno));
-                        return NULL;
-                    }
-                } while (ret != 0);
-        
-                // we got notified about new cmd avail in cmd queue
-                camera_cmd_type_t cmd = cmdThread->getCmd();
-                switch (cmd) {
-                case CAMERA_CMD_TYPE_TIMEOUT:
-                    {
-                        int32_t bufIdx = (int32_t)(pme->mTimeoutFrameQ.dequeue());
-                        pme->cancelBuffer(bufIdx);
-                        break;
-                    }
-                case CAMERA_CMD_TYPE_DO_NEXT_JOB:
-                    {
-                        LOGD("Do next job");
-                        mm_camera_super_buf_t *frame =
-                            (mm_camera_super_buf_t *)pme->mDataQ.dequeue();
-                        if (NULL != frame) {
-                        //这个分支前两个最终都是会调用mDataCB这是channel层的回调
-                            if (UNLIKELY(frame->bufs[0]->buf_type ==
-                                    CAM_STREAM_BUF_TYPE_USERPTR)) {
-                                pme->handleBatchBuffer(frame);
-                            } else if (pme->mDataCB != NULL) {
-                                pme->mDataCB(frame, pme, pme->mUserData);
-                            } else {
-                                // no data cb routine, return buf here
-                                pme->bufDone(frame->bufs[0]->buf_idx);
-                            }
-                        }
-                    }
-                    break;
-                case CAMERA_CMD_TYPE_EXIT:
-                    LOGH("Exit");
-                    /* flush data buf queue */
-                    pme->mDataQ.flush();
-                    pme->mTimeoutFrameQ.flush();
-                    pme->flushFreeBatchBufQ();
-                    running = 0;
-                    break;
-                default:
-                    break;
-                }
-            } while (running);
-            LOGD("X");
-            return NULL;
-        }
-        ```
-        
-        </details>
-
+     启动一个 线程函数 **QCamera3Stream::dataProcRoutine()** 监听CMD进行数据处理，调用 **mDataCB** (Channel层的 **streamRotation**)
 
 3. 当mm层get到数据会调用 **dataNotifyCB()** ,该函数通过调用 **QCamera3Stream::processDataNotify()**  给 **dataProcRoutine()** 线程函数发送命令
 
-   <details>
-   <summary>QCamera3Stream::processDataNotify()</summary>
+## MM 层数据流
 
-   ```c++
-   int32_t QCamera3Stream::processDataNotify(mm_camera_super_buf_t *frame)
-   {
-       LOGD("E\n");
-       int32_t rc;
-       if (mDataQ.enqueue((void *)frame)) {
-           rc = mProcTh.sendCmd(CAMERA_CMD_TYPE_DO_NEXT_JOB, FALSE, FALSE);
-       } else {
-           LOGD("Stream thread is not active, no ops here");
-           bufDone(frame->bufs[0]->buf_idx);
-           free(frame);
-           rc = NO_ERROR;
-       }
-       LOGD("X\n");
-       return rc;
-   }
-   ```
-
-   </details>
-
+1. 在QCamera3中，进行初始化的Channel的时候，会**add_stream**和**config_stream** , 在config的过程中 **mm_stream_config()** 会将上层传下来的回调进行映射。
