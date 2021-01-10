@@ -169,4 +169,25 @@ int QCamera3HardwareInterface::configureStreamsPerfLocked(camera3_stream_configu
 
 ## MM 层数据流
 
-1. 在QCamera3中，进行初始化的Channel的时候，会**add_stream**和**config_stream** , 在config的过程中 **mm_stream_config()** 会将上层传下来的回调进行映射。
+1. 在mm层主要是围绕两个线程进行流转
+
+   **mm_camera_cmd_thread_launch()**
+
+   **mm_camera_poll_thread_launch()**
+
+2. 在QCamera3中，进行初始化的Channel的时候，会**add_stream**和**config_stream** , 在config的过程中 **mm_stream_config()** 会将上层传下来的回调进行映射。
+
+3. **mm_camera_poll_thread_launch** 获取到 **MM_CAMERA_POLL_TYPE_DATA** 事件，会去判断是否有数据回调函数。(**mm_stream_data_notify**)
+
+   在这个函数主要进行读数据，读完数据创建线程命令 **MM_CAMERA_CMD_TYPE_DATA_CB** ，最终调用 **mm_stream_dispatch_app_data()** 将数据上传。
+   
+
+
+
+------
+
+> **博客推荐**
+>
+> https://www.jianshu.com/p/ecb1be82e6a8
+>
+> https://www.jianshu.com/p/1baad2a5281d
