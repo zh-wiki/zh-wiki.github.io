@@ -191,3 +191,5 @@ int QCamera3HardwareInterface::configureStreamsPerfLocked(camera3_stream_configu
 > https://www.jianshu.com/p/ecb1be82e6a8
 >
 > https://www.jianshu.com/p/1baad2a5281d
+>
+> https://wenku.baidu.com/view/3b408a6159fb770bf78a6529647d27284b733702.html
