@@ -1,7 +1,6 @@
 ---
 title: 高通 mm 架构 bring up
 toc: true
-list_number: false
 date: 2020-00-00 00:00:01
 tags: 高通 mm 
 ---
