@@ -190,5 +190,12 @@ sudo service smbd restart
    suod ./nginx -s stop
    ```
 
+2. 查看ip的访问量
+
+   ```bash
+   cd /usr/local/nginx/logs/
+   awk '{cnt[$1]++;}END{for(i in cnt){printf("%s\t%s\n", cnt[i], i);}}' access.log|sort -n
+   ```
+
    
 

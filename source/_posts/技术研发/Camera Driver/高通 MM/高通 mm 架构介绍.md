@@ -44,6 +44,20 @@ tags: 高通 mm
    在这个函数主要进行读数据，读完数据创建线程命令 **MM_CAMERA_CMD_TYPE_DATA_CB** ，最终调用 **mm_stream_dispatch_app_data()** 将数据上传。
    
 
+# 高通camera daemon进程
+
+------
+
+## Media Controller 线程分析
+
+
+
+
+
+
+
+
+
 
 
 ------
