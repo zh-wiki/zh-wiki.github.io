@@ -37,7 +37,7 @@ titlecase: false # Transform title into titlecase
 -external_link:
 -  enable: true # Open external links in new tab
 -  field: site # Apply to the whole site
--  exclude: ''
+-  exclude: wiki.zthxxx.me
 filename_case: 0
 render_drafts: false
 post_asset_folder: true
@@ -113,7 +113,7 @@ sitemap:
 nofollow:
   enable: true
   exclude:
-    - zhoujunwei.me 
+    - wiki.zhoujunwei.me 
 
 # Extensions
 ## Plugins: https://hexo.io/plugins/
