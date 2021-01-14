@@ -48,17 +48,15 @@ tags: 高通 mm
 
 ------
 
-## Media Controller 线程分析
+## iface_thread_main_loop 线程
 
+主要监听 proc 命令 和 kernel v4l2 事件
 
+- iface_thread_proc_cmd()
 
+- iface_axi_proc_subdev_event()
 
-
-
-
-
-
-
+  当kernel出一帧数据就会触发 **ISP_EVENT_SOF** 事件 ，调用该函数 **iface_axi_handle_sof_event()** 进行数据处理
 
 ------
 
