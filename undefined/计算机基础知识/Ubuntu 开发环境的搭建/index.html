@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    
+    <title>Ubuntu 开发环境的搭建 | Zhou&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="Ubuntu">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Samba 服务共享目录 添加以下配置 &#x2F;etc&#x2F;samba&#x2F;smb.conf 123456[文件夹名]	path &#x3D; #目录路径	browseable &#x3D; ye   #可查看共享文件	guest ok &#x3D; yes        #所有人均可访问共享目录	writable &#x3D; yes        #允许写入	public &#x3D; yes            #允许匿名用户访问  配置结束重启服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu 开发环境的搭建">
+<meta property="og:url" content="https://zh-wiki.github.io/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="Zhou&#39;s Wiki">
+<meta property="og:description" content="Samba 服务共享目录 添加以下配置 &#x2F;etc&#x2F;samba&#x2F;smb.conf 123456[文件夹名]	path &#x3D; #目录路径	browseable &#x3D; ye   #可查看共享文件	guest ok &#x3D; yes        #所有人均可访问共享目录	writable &#x3D; yes        #允许写入	public &#x3D; yes            #允许匿名用户访问  配置结束重启服务">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zh-wiki.github.io/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201111105153041.png">
+<meta property="og:image" content="https://zh-wiki.github.io/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201111105232574.png">
+<meta property="article:published_time" content="2019-12-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-30T08:33:26.283Z">
+<meta property="article:author" content="Zhoujunwei">
+<meta property="article:tag" content="Ubuntu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zh-wiki.github.io/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201111105153041.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="Zhou&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/open-sans/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+<script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    
+<script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Zhou&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/tags">标签</a>
+                
+                    <a class="main-nav-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tablesgenerator.com/html_tables">在线表格</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tablesgenerator.com/html_tables">在线表格</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            技术研发
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Android 研发总结
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Android%20%E7%A0%94%E5%8F%91%E6%80%BB%E7%BB%93/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">Android 研发总结</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Camera Driver
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            MTK 平台
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/MTK%20%E5%B9%B3%E5%8F%B0/MTK%20Camera%20Bring%20Up/">MTK Camera Bring Up</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/MTK%20%E5%B9%B3%E5%8F%B0/MTK%20Camera%20%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D/">MTK Camera 架构介绍</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            高通 Camx
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20%E4%BB%8B%E7%BB%8D/">高通 Camx 介绍</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20server/">高通 Camx camera server</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/">高通 Camx camera provider</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20open%20camera/">高通 Camx Camx open camera</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20config%20stream%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx config stream 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20capture%20request%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx capture request 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20capture%20result%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx capture result 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20Bring%20up/">高通 Camx Bring up</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            高通 MM
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D/">高通 mm 架构介绍</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%20bring%20up/">高通 mm 架构 bring up</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20INIT%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 mm INIT 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20ConfigureStream%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 mm ConfigureStream 代码流程</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Camera 专业知识
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/camea%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">camera 基础知识</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/Camera%20%E6%88%90%E5%83%8F%E5%8E%9F%E7%90%86%E5%92%8C%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/">Camera 成像原理和专业知识</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/%E8%87%AA%E5%8A%A8%E5%AF%B9%E7%84%A6/">自动对焦专讲</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/%E5%9B%BE%E7%89%87%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E4%B8%8E%E8%BD%AC%E6%8D%A2/">图片数据格式与转换</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux Driver
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            V4L2
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20Driver/V4L2/%E4%BB%8E%E9%9B%B6%E5%86%99%E8%99%9A%E6%8B%9Fv4l2%E9%A9%B1%E5%8A%A8/">从零实现虚拟Camera Driver</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20Driver/V4L2/V4L2%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/">从零开始写V4L2应用程序</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux 命令
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/ADB%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">ADB 常用命令</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/Git%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Git 常用命令</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/Repo%20%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4/">Repo 常用命令</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            XTS 相关
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/XTS%20%E7%9B%B8%E5%85%B3/XTS%20%E6%B5%8B%E8%AF%95%E6%8C%87%E5%8D%97/">XTS 测试指南</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/XTS%20%E7%9B%B8%E5%85%B3/ITS%20%E9%97%AE%E9%A2%98%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90/">ITS 测试案例分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            项目随笔
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/%E5%B0%8F%E7%B1%B3J19S%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/">小米J19S项目随笔</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/%E4%B8%89%E6%98%9Fo1o2o3%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/">三星o1o2o3项目随笔</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            生活学习
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%94%9F%E6%B4%BB%E5%AD%A6%E4%B9%A0/%E7%94%9F%E6%B4%BB%E5%AD%A6%E4%B9%A0/">生活学习</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            程序语言
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            C++
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/C++/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">工厂模式</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            MarkDown
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/MarkDown/MarkDown%20%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/">MarkDown 常用语法</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            UML
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/UML/UML/">UML</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E8%89%BA%E6%9C%AF/%E8%89%BA%E6%9C%AF/">艺术</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            计算机基础知识
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file active"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Ubuntu 开发环境的搭建</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/ubuntu%20%E4%B8%AD%E6%90%AD%E5%BB%BAgitlab%E6%9C%8D%E5%8A%A1%E5%99%A8/">Ubuntu 中搭建gitlab服务器</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">Hexo 博客搭建</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Centos%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Centos 开发环境的搭建</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Arch%20Linux%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Arch Linux 开发环境的搭建</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/undefined/index/">Welcome Zhou jun wei's Wiki Site</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-计算机基础知识/Ubuntu 开发环境的搭建" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">计算机基础知识</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Ubuntu/" rel="tag">Ubuntu</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">
+            <time datetime="2019-12-31T16:00:00.000Z" itemprop="datePublished">2020-01-01</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/raw/zjw-dev/source/_posts/计算机基础知识/Ubuntu 开发环境的搭建.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/edit/zjw-dev/source/_posts/计算机基础知识/Ubuntu 开发环境的搭建.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/commits/zjw-dev/source/_posts/计算机基础知识/Ubuntu 开发环境的搭建.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Ubuntu 开发环境的搭建
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">文章目录</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Samba-%E6%9C%8D%E5%8A%A1%E5%85%B1%E4%BA%AB%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">Samba 服务共享目录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ubuntu18-04-virtualBox-windows-%E6%94%AF%E6%8C%81usb"><span class="toc-number">2.</span> <span class="toc-text">ubuntu18.04 virtualBox windows 支持usb</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#VirtualBox-%E4%BF%AE%E5%A4%8D%E2%80%99modprobe-vboxdrv%E2%80%99-%E6%8A%A5%E9%94%99"><span class="toc-number">3.</span> <span class="toc-text">VirtualBox 修复’modprobe vboxdrv’ 报错</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%94%AF%E6%8C%81%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84gcc"><span class="toc-number">4.</span> <span class="toc-text">支持多版本的gcc</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84jdk"><span class="toc-number">5.</span> <span class="toc-text">安装多版本的jdk</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Ubuntu%E6%9F%A5%E7%9C%8B%E7%AB%AF%E5%8F%A3%E5%92%8C%E9%87%8A%E6%94%BE%E7%AB%AF%E5%8F%A3"><span class="toc-number">6.</span> <span class="toc-text">Ubuntu查看端口和释放端口</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Nginx-%E6%9C%8D%E5%8A%A1%E7%9A%84%E6%90%AD%E5%BB%BA"><span class="toc-number">7.</span> <span class="toc-text">Nginx 服务的搭建</span></a></li></ol>
+                </div>
+            
+        
+        
+            <h1 id="Samba-服务共享目录"><a href="#Samba-服务共享目录" class="headerlink" title="Samba 服务共享目录"></a>Samba 服务共享目录</h1><hr>
+<p>添加以下配置 /etc/samba/smb.conf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[文件夹名]</span><br><span class="line">	path = <span class="comment">#目录路径</span></span><br><span class="line">	browseable = ye   <span class="comment">#可查看共享文件</span></span><br><span class="line">	guest ok = yes        <span class="comment">#所有人均可访问共享目录</span></span><br><span class="line">	writable = yes        <span class="comment">#允许写入</span></span><br><span class="line">	public = yes            <span class="comment">#允许匿名用户访问</span></span><br></pre></td></tr></table></figure>
+
+<p>配置结束重启服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service smbd restart</span><br></pre></td></tr></table></figure>
+
+<h1 id="ubuntu18-04-virtualBox-windows-支持usb"><a href="#ubuntu18-04-virtualBox-windows-支持usb" class="headerlink" title="ubuntu18.04 virtualBox windows 支持usb"></a>ubuntu18.04 virtualBox windows 支持usb</h1><hr>
+<ol>
+<li><p>执行命令<br>sudo usermod -aG vboxusers 用户名（让virtualbox 能识别到主机的usb）</p>
+</li>
+<li><p>cat /etc/group | grep vboxusers （查看是否已经添加成功）</p>
+</li>
+<li><p>下载插件 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://download.java.net/virtualbox/">下载链接</a>.</p>
+</li>
+<li><p>下载插件比较慢，已经提前下载好的。适用于（virtualbox 5.2.34) </p>
+</li>
+<li><p>安装插件</p>
+<p><img src="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201111105153041.png" alt="操作示意图"></p>
+</li>
+<li><p>设置 USB 协议的支持</p>
+<p><img src="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/image-20201111105232574.png" alt="操作示意图"></p>
+</li>
+<li><p>reboot （重启ubuntu）</p>
+</li>
+<li><p>如果重启电脑之后，虚拟机可以扫描到USB设备，但是Ｗin7中提示驱动未能安装成功。<br>解决方法：<br>下载驱动精灵。安装USB驱动。</p>
+</li>
+</ol>
+<h1 id="VirtualBox-修复’modprobe-vboxdrv’-报错"><a href="#VirtualBox-修复’modprobe-vboxdrv’-报错" class="headerlink" title="VirtualBox 修复’modprobe vboxdrv’ 报错"></a>VirtualBox 修复’modprobe vboxdrv’ 报错</h1><hr>
+<ol>
+<li><p>问题发生背景 </p>
+<p>Linux 内核版本升级之后，virtualbox 的驱动没有更新成功。</p>
+</li>
+<li><p>解决方法</p>
+<p>a.更新整个系统</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt upgrade</span><br></pre></td></tr></table></figure>
+
+<p>b.重新安装对应内核版本的头文件,和virtualbox的驱动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install --reinstall linux-headers-$(uname -r) virtualbox-dkms dkms</span><br></pre></td></tr></table></figure>
+
+<p>c.加载驱动重启</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo modprobe vboxdrv</span><br><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<ol start="3">
+<li><p>注意事项</p>
+<p>更新驱动的时候，会重新编译驱动，所以要选择对应的gcc编译器，太老的估计会凉。</p>
+</li>
+</ol>
+<h1 id="支持多版本的gcc"><a href="#支持多版本的gcc" class="headerlink" title="支持多版本的gcc"></a>支持多版本的gcc</h1><hr>
+<ol>
+<li><p>系统安装ok后默认gcc 版本是 v-7.x。我们先搞一个低版本的gcc</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install gcc-4.8</span><br><span class="line">sudo apt-get install g++-4.8</span><br><span class="line">sudo ln -sf /usr/bin/g++-4.8 /usr/bin/g++</span><br><span class="line">sudo ln -sf /usr/bin/gcc-4.8 /usr/bin/gcc</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>管理多个版本的gcc</p>
+<p>a.查看存在几个版本的gcc</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -l /usr/bin/gcc</span><br></pre></td></tr></table></figure>
+
+<p>b.分别为gcc和g++添加管理组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 40</span><br><span class="line">sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 40</span><br></pre></td></tr></table></figure>
+
+<p>c.能添加就能删除,从管理组中删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo update-alternatives --remove gcc /usr/bin/gcc-4.8</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置ok使用以下指令选择gcc的版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo update-alternatives --config gcc</span><br><span class="line">sudo update-alternatives --config g++</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h1 id="安装多版本的jdk"><a href="#安装多版本的jdk" class="headerlink" title="安装多版本的jdk"></a>安装多版本的jdk</h1><hr>
+<ol>
+<li><p>首先到官网下载jdk源码包</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">JDK官网</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://mirrors.huaweicloud.com/java/jdk/">华为JDK网址</a></p>
+</li>
+<li><p>安装jdk</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /usr/lib/jvm</span><br><span class="line">sudo tar -zxvf jdk-7u60-linux-x64.gz -C /usr/lib/jvm <span class="comment">#//将jdk包复制到该目录进行解压</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将jdk注册到系统方便多版本jdk进行切换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#只需要将下面的命令中jdk的路径换为自己对应版本的路径就好了</span></span><br><span class="line">sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.8.0_191/bin/java 300</span><br><span class="line">sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk1.8.0_191/bin/javac 300</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>系统中切换jdk或者javac</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo update-alternatives --config java</span><br><span class="line">sudo update-alternatives --config javac</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<h1 id="Ubuntu查看端口和释放端口"><a href="#Ubuntu查看端口和释放端口" class="headerlink" title="Ubuntu查看端口和释放端口"></a>Ubuntu查看端口和释放端口</h1><hr>
+<ul>
+<li><strong>查看所有端口：<code>netstat -tln</code></strong></li>
+<li><strong>查看指定端口：<code>netstat -tln | grep 端口号</code></strong></li>
+<li><strong>查看指定端口被那些进程占用：<code>lsof -i :端口号</code></strong></li>
+<li><strong>释放端口及就是杀死占用该端口的进程：<code>kill -9 进程id</code></strong></li>
+</ul>
+<h1 id="Nginx-服务的搭建"><a href="#Nginx-服务的搭建" class="headerlink" title="Nginx 服务的搭建"></a>Nginx 服务的搭建</h1><hr>
+<ol>
+<li><p>常用命令 （/usr/local/nginx/sbin）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ./nginx </span><br><span class="line">suod ./nginx -s stop</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看ip的访问量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/nginx/logs/</span><br><span class="line">awk <span class="string">&#x27;&#123;cnt[$1]++;&#125;END&#123;for(i in cnt)&#123;printf(&quot;%s\t%s\n&quot;, cnt[i], i);&#125;&#125;&#x27;</span> access.log|sort -n</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20Driver/V4L2/V4L2%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    从零开始写V4L2应用程序
+                
+            </div>
+        </a>
+    
+    
+        <a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/ubuntu%20%E4%B8%AD%E6%90%AD%E5%BB%BAgitlab%E6%9C%8D%E5%8A%A1%E5%99%A8/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Ubuntu 中搭建gitlab服务器</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+</section>
+        </div>
+        
+        
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>

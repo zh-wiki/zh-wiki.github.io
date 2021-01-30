@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    
+    <title>高通 Camx camera provider | Zhou&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="高通Camx">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="概览  通过图片可以看出Camera Provider 分为两部分  通过 HIDL 与Camera Service 跨进程通信 通过 dlopen 方式加载一系列动态库 （Camera HAL3结构的so），在高通Camera 是指 camx-chi 架构  camera provider 和 camera hal3 的联系HAL硬件抽象层(Hardware Abstraction Layer)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高通 Camx camera provider">
+<meta property="og:url" content="https://zh-wiki.github.io/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/index.html">
+<meta property="og:site_name" content="Zhou&#39;s Wiki">
+<meta property="og:description" content="概览  通过图片可以看出Camera Provider 分为两部分  通过 HIDL 与Camera Service 跨进程通信 通过 dlopen 方式加载一系列动态库 （Camera HAL3结构的so），在高通Camera 是指 camx-chi 架构  camera provider 和 camera hal3 的联系HAL硬件抽象层(Hardware Abstraction Layer)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zh-wiki.github.io/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021102734471.png">
+<meta property="og:image" content="https://zh-wiki.github.io/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021143242020.png">
+<meta property="og:image" content="https://zh-wiki.github.io/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201026113612765.png">
+<meta property="article:published_time" content="2019-12-31T16:00:02.000Z">
+<meta property="article:modified_time" content="2021-01-30T08:33:17.763Z">
+<meta property="article:author" content="Zhoujunwei">
+<meta property="article:tag" content="高通Camx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zh-wiki.github.io/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021102734471.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="Zhou&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/open-sans/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+<script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    
+<script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Zhou&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/tags">标签</a>
+                
+                    <a class="main-nav-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tablesgenerator.com/html_tables">在线表格</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tablesgenerator.com/html_tables">在线表格</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            技术研发
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Android 研发总结
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Android%20%E7%A0%94%E5%8F%91%E6%80%BB%E7%BB%93/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">Android 研发总结</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Camera Driver
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            MTK 平台
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/MTK%20%E5%B9%B3%E5%8F%B0/MTK%20Camera%20Bring%20Up/">MTK Camera Bring Up</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/MTK%20%E5%B9%B3%E5%8F%B0/MTK%20Camera%20%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D/">MTK Camera 架构介绍</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            高通 Camx
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20%E4%BB%8B%E7%BB%8D/">高通 Camx 介绍</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20server/">高通 Camx camera server</a></li>  <li class="file active"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/">高通 Camx camera provider</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20open%20camera/">高通 Camx Camx open camera</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20config%20stream%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx config stream 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20capture%20request%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx capture request 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20capture%20result%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx capture result 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20Bring%20up/">高通 Camx Bring up</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            高通 MM
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D/">高通 mm 架构介绍</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%20bring%20up/">高通 mm 架构 bring up</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20INIT%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 mm INIT 代码流程</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20ConfigureStream%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 mm ConfigureStream 代码流程</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Camera 专业知识
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/camea%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">camera 基础知识</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/Camera%20%E6%88%90%E5%83%8F%E5%8E%9F%E7%90%86%E5%92%8C%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/">Camera 成像原理和专业知识</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/%E8%87%AA%E5%8A%A8%E5%AF%B9%E7%84%A6/">自动对焦专讲</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/%E5%9B%BE%E7%89%87%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E4%B8%8E%E8%BD%AC%E6%8D%A2/">图片数据格式与转换</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux Driver
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            V4L2
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20Driver/V4L2/%E4%BB%8E%E9%9B%B6%E5%86%99%E8%99%9A%E6%8B%9Fv4l2%E9%A9%B1%E5%8A%A8/">从零实现虚拟Camera Driver</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20Driver/V4L2/V4L2%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/">从零开始写V4L2应用程序</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux 命令
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/ADB%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">ADB 常用命令</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/Git%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Git 常用命令</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/Repo%20%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4/">Repo 常用命令</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            XTS 相关
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/XTS%20%E7%9B%B8%E5%85%B3/XTS%20%E6%B5%8B%E8%AF%95%E6%8C%87%E5%8D%97/">XTS 测试指南</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/XTS%20%E7%9B%B8%E5%85%B3/ITS%20%E9%97%AE%E9%A2%98%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90/">ITS 测试案例分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            项目随笔
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/%E5%B0%8F%E7%B1%B3J19S%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/">小米J19S项目随笔</a></li>  <li class="file"><a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/%E4%B8%89%E6%98%9Fo1o2o3%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/">三星o1o2o3项目随笔</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            生活学习
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%94%9F%E6%B4%BB%E5%AD%A6%E4%B9%A0/%E7%94%9F%E6%B4%BB%E5%AD%A6%E4%B9%A0/">生活学习</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            程序语言
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            C++
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/C++/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">工厂模式</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            MarkDown
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/MarkDown/MarkDown%20%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/">MarkDown 常用语法</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            UML
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/UML/UML/">UML</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E8%89%BA%E6%9C%AF/%E8%89%BA%E6%9C%AF/">艺术</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            计算机基础知识
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Ubuntu 开发环境的搭建</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/ubuntu%20%E4%B8%AD%E6%90%AD%E5%BB%BAgitlab%E6%9C%8D%E5%8A%A1%E5%99%A8/">Ubuntu 中搭建gitlab服务器</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">Hexo 博客搭建</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Centos%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Centos 开发环境的搭建</a></li>  <li class="file"><a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Arch%20Linux%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Arch Linux 开发环境的搭建</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/undefined/index/">Welcome Zhou jun wei's Wiki Site</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-技术研发/Camera Driver/高通 Camx/高通 Camx camera provider" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/">技术研发</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera-Driver/">Camera Driver</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera-Driver/%E9%AB%98%E9%80%9A-Camx/">高通 Camx</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E9%AB%98%E9%80%9ACamx/" rel="tag">高通Camx</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/">
+            <time datetime="2019-12-31T16:00:02.000Z" itemprop="datePublished">2020-01-01</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/raw/zjw-dev/source/_posts/技术研发/Camera Driver/高通 Camx/高通 Camx camera provider.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/edit/zjw-dev/source/_posts/技术研发/Camera Driver/高通 Camx/高通 Camx camera provider.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/commits/zjw-dev/source/_posts/技术研发/Camera Driver/高通 Camx/高通 Camx camera provider.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            高通 Camx camera provider
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">文章目录</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E8%A7%88"><span class="toc-number">1.</span> <span class="toc-text">概览</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#camera-provider-%E5%92%8C-camera-hal3-%E7%9A%84%E8%81%94%E7%B3%BB"><span class="toc-number">2.</span> <span class="toc-text">camera provider 和 camera hal3 的联系</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HAL3-%E7%BB%93%E6%9E%84%E4%BD%93%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.1.</span> <span class="toc-text">HAL3 结构体介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98%E9%80%9A-camx-HAL3-%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">2.2.</span> <span class="toc-text">高通 camx HAL3 结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Camera-HAL3-%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.3.</span> <span class="toc-text">Camera HAL3 的实现</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Provider-init-%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">Provider init 代码流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Camera-Provider-Init-%E5%87%BD%E6%95%B0%E6%80%BB%E6%8B%AC"><span class="toc-number">3.1.</span> <span class="toc-text">Camera Provider Init 函数总括</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Camera-Provider-Init-%E5%88%86%E8%A7%A3"><span class="toc-number">3.2.</span> <span class="toc-text">Camera Provider Init 分解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#get-number-of-cameras-%E5%87%BD%E6%95%B0%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.2.1.</span> <span class="toc-text">get_number_of_cameras 函数介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HwEnvironment-Initialize-%E5%87%BD%E6%95%B0%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.2.2.</span> <span class="toc-text">HwEnvironment::Initialize() 函数介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HwEnvironment-InitCaps-%E5%87%BD%E6%95%B0%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.2.3.</span> <span class="toc-text">HwEnvironment::InitCaps()  函数介绍</span></a></li></ol></li></ol></li></ol>
+                </div>
+            
+        
+        
+            <h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><img src="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021102734471.png" alt="camera provider" style="zoom:80%;">
+
+<p>通过图片可以看出Camera Provider 分为两部分</p>
+<ul>
+<li>通过 <strong>HIDL</strong> 与Camera Service 跨进程通信</li>
+<li>通过 <strong>dlopen</strong> 方式加载一系列动态库 （Camera HAL3结构的so），在高通Camera 是指 camx-chi 架构</li>
+</ul>
+<h1 id="camera-provider-和-camera-hal3-的联系"><a href="#camera-provider-和-camera-hal3-的联系" class="headerlink" title="camera provider 和 camera hal3 的联系"></a>camera provider 和 camera hal3 的联系</h1><p>HAL硬件抽象层(Hardware Abstraction Layer),是谷歌开发的用于屏蔽底层硬件抽象出来的一个软件层，该层定义了自己的一套通用标准接口,平台厂商务必按照以下规则定义自己的Module</p>
+<ul>
+<li>每一个硬件都通过hw_module_t来描述,具有固定的名字HMI</li>
+<li>每一个硬件都必须实现hw_module_t里面的open方法,用于打开硬件设备,并返回对应的操作接口集合</li>
+<li>硬件的操作接口集合使用hw_device_t 来描述,并可以通过自定义一个更大的包含hw_device_t的结构体来拓展硬件操作集合</li>
+</ul>
+<h2 id="HAL3-结构体介绍"><a href="#HAL3-结构体介绍" class="headerlink" title="HAL3 结构体介绍"></a>HAL3 结构体介绍</h2><details>
+<summary>hw_module_t</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">hw_module_t</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> tag;</span><br><span class="line">    <span class="keyword">uint16_t</span> module_api_version;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> version_major module_api_version</span></span><br><span class="line">    <span class="keyword">uint16_t</span> hal_api_version;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> version_minor hal_api_version</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *id;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *name;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span> *author;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hw_module_methods_t</span>* <span class="title">methods</span>;</span></span><br><span class="line">    <span class="keyword">void</span>* dso;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __LP64__</span></span><br><span class="line">    <span class="keyword">uint64_t</span> reserved[<span class="number">32</span><span class="number">-7</span>];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="keyword">uint32_t</span> reserved[<span class="number">32</span><span class="number">-7</span>];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125; <span class="keyword">hw_module_t</span>;</span><br></pre></td></tr></table></figure>
+</details>
+
+<details>
+<summary>hw_module_methods_t</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">hw_module_methods_t</span> &#123;</span></span><br><span class="line">    <span class="comment">/** Open a specific device */</span></span><br><span class="line">    <span class="keyword">int</span> (*open)(<span class="keyword">const</span> struct <span class="keyword">hw_module_t</span>* <span class="keyword">module</span>, <span class="keyword">const</span> <span class="keyword">char</span>* id,</span><br><span class="line">            struct <span class="keyword">hw_device_t</span>** device);</span><br><span class="line">&#125; <span class="keyword">hw_module_methods_t</span>;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<details>
+<summary>hw_device_t</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">hw_device_t</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> tag;</span><br><span class="line">    <span class="keyword">uint32_t</span> version;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hw_module_t</span>* <span class="title">module</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __LP64__</span></span><br><span class="line">    <span class="keyword">uint64_t</span> reserved[<span class="number">12</span>];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="keyword">uint32_t</span> reserved[<span class="number">12</span>];</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="keyword">int</span> (*close)(struct <span class="keyword">hw_device_t</span>* device);</span><br><span class="line">    </span><br><span class="line">&#125; <span class="keyword">hw_device_t</span>;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<p>从上面的定义可以看出</p>
+<ul>
+<li><p>hw_module_t 代表了模块，通过其open方法用来打开一个设备</p>
+</li>
+<li><p>设备是用hw_device_t来表示，其中除了用来关闭设备的close方法外,并无其它方法</p>
+</li>
+<li><p>由此可见谷歌定义的HAL接口,并不能满足绝大部分HAL模块的需要,所以谷歌想出了一个比较好的解决方式,那便是将这两个基本结构嵌入到更大的结构体内部,同时在更大的结构内部定义了各自模块特有的方法,用于实现模块的功能,这样,一来对上保持了HAL的统一规范,二来也扩展了模块的功能</p>
+</li>
+</ul>
+<h2 id="高通-camx-HAL3-结构体"><a href="#高通-camx-HAL3-结构体" class="headerlink" title="高通 camx HAL3 结构体"></a>高通 camx HAL3 结构体</h2><details>
+<summary>camera_module_t</summary>
+
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">camera_module</span> &#123;</span></span><br><span class="line">    <span class="keyword">hw_module_t</span> common;</span><br><span class="line">    <span class="keyword">int</span> (*get_number_of_cameras)(<span class="keyword">void</span>);</span><br><span class="line">    <span class="keyword">int</span> (*get_camera_info)(<span class="keyword">int</span> camera_id, struct camera_info *info);</span><br><span class="line">    <span class="keyword">int</span> (*set_callbacks)(<span class="keyword">const</span> <span class="keyword">camera_module_callbacks_t</span> *callbacks);</span><br><span class="line">    <span class="keyword">void</span> (*get_vendor_tag_ops)(<span class="keyword">vendor_tag_ops_t</span>* ops);</span><br><span class="line">    <span class="keyword">int</span> (*open_legacy)(<span class="keyword">const</span> struct <span class="keyword">hw_module_t</span>* <span class="keyword">module</span>, <span class="keyword">const</span> <span class="keyword">char</span>* id, <span class="keyword">uint32_t</span> halVersion, struct <span class="keyword">hw_device_t</span>** device);</span><br><span class="line">    <span class="keyword">int</span> (*set_torch_mode)(<span class="keyword">const</span> <span class="keyword">char</span>* camera_id, <span class="keyword">bool</span> enabled);</span><br><span class="line">    <span class="keyword">int</span> (*init)();</span><br><span class="line">    <span class="keyword">int</span> (*get_physical_camera_info)(<span class="keyword">int</span> physical_camera_id,  <span class="keyword">camera_metadata_t</span> **static_metadata);</span><br><span class="line">    <span class="keyword">int</span> (*is_stream_combination_supported)(<span class="keyword">int</span> camera_id, <span class="keyword">const</span> <span class="keyword">camera_stream_combination_t</span> *streams);</span><br><span class="line">    <span class="keyword">void</span> (*notify_device_state_change)(<span class="keyword">uint64_t</span> deviceState);</span><br><span class="line">    <span class="keyword">int</span> (*get_camera_device_version)(<span class="keyword">int</span> camera_id, <span class="keyword">uint32_t</span> *version);</span><br><span class="line">    <span class="keyword">void</span>* reserved[<span class="number">1</span>];</span><br><span class="line">&#125; <span class="keyword">camera_module_t</span>;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+
+<details>
+<summary>camera3_device_t</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">camera3_device</span> &#123;</span></span><br><span class="line">    <span class="keyword">hw_device_t</span> common;</span><br><span class="line">    <span class="keyword">camera3_device_ops_t</span> *ops;</span><br><span class="line">    <span class="keyword">void</span> *priv;</span><br><span class="line">&#125; <span class="keyword">camera3_device_t</span>;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<ul>
+<li>camera_module_t包含了hw_module_t，主要用于表示Camera模块，其中定义了诸如get_number_of_cameras以及set_callbacks等扩展方法</li>
+<li>camera3_device_t包含了hw_device_t,主要用来表示Camera设备,其中定义了camera3_device_ops操作方法集合,用来实现正常获取图像数据以及控制Camera的功能</li>
+</ul>
+<h2 id="Camera-HAL3-的实现"><a href="#Camera-HAL3-的实现" class="headerlink" title="Camera HAL3 的实现"></a>Camera HAL3 的实现</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">CAMX_VISIBILITY_PUBLIC <span class="keyword">camera_module_t</span> HAL_MODULE_INFO_SYM =</span><br><span class="line">&#123;</span><br><span class="line">    .common =</span><br><span class="line">    &#123;</span><br><span class="line">        .tag                = HARDWARE_MODULE_TAG,</span><br><span class="line">        .module_api_version = CAMERA_MODULE_API_VERSION_CURRENT,</span><br><span class="line">        .hal_api_version    = HARDWARE_HAL_API_VERSION,</span><br><span class="line">        .id                 = CAMERA_HARDWARE_MODULE_ID,</span><br><span class="line">        .name               = <span class="string">&quot;QTI Camera HAL&quot;</span>,</span><br><span class="line">        .author             = <span class="string">&quot;Qualcomm Technologies, Inc.&quot;</span>,</span><br><span class="line">        .methods            = &amp;CamX::g_hwModuleMethods</span><br><span class="line">    &#125;,</span><br><span class="line">    .get_number_of_cameras  = CamX::get_number_of_cameras,</span><br><span class="line">    .get_camera_info        = CamX::get_camera_info,</span><br><span class="line">    .set_callbacks          = CamX::set_callbacks,</span><br><span class="line">    .get_vendor_tag_ops     = CamX::get_vendor_tag_ops,</span><br><span class="line">    .open_legacy            = <span class="literal">NULL</span>,</span><br><span class="line">    .set_torch_mode         = CamX::set_torch_mode,</span><br><span class="line">    .init                   = CamX::init</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>没错高通 camx hal3 的入口就是这个，在遵循HAL3规范的前提下，实例化各个接口。Provider 将会调用 hw_get_module() 来获取该入口。</p>
+<p>各个接口映射到 camxhal3.cpp</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> Dispatch <span class="title">g_dispatchHAL3</span><span class="params">(&amp;g_jumpTableHAL3)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">JumpTableHAL3 g_jumpTableHAL3 =</span><br><span class="line">&#123;</span><br><span class="line">    open,</span><br><span class="line">    get_number_of_cameras,</span><br><span class="line">    get_camera_info,</span><br><span class="line">    set_callbacks,</span><br><span class="line">    get_vendor_tag_ops,</span><br><span class="line">    open_legacy,</span><br><span class="line">    set_torch_mode,</span><br><span class="line">    init,</span><br><span class="line">    get_tag_count,</span><br><span class="line">    get_all_tags,</span><br><span class="line">    get_section_name,</span><br><span class="line">    get_tag_name,</span><br><span class="line">    get_tag_type,</span><br><span class="line">    close,</span><br><span class="line">    initialize,</span><br><span class="line">    configure_streams,</span><br><span class="line">    construct_default_request_settings,</span><br><span class="line">    process_capture_request,</span><br><span class="line">    dump,</span><br><span class="line">    flush,</span><br><span class="line">    camera_device_status_change,</span><br><span class="line">    torch_mode_status_change,</span><br><span class="line">    process_capture_result,</span><br><span class="line">    notify</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="Provider-init-代码流程"><a href="#Provider-init-代码流程" class="headerlink" title="Provider init 代码流程"></a>Provider init 代码流程</h1><p><img src="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201021143242020.png" alt="init 代码流程"></p>
+<p>在系统初始化的时候，系统会去运行”<a href="mailto:&#x61;&#x6e;&#x64;&#114;&#x6f;&#x69;&#x64;&#x2e;&#x68;&#x61;&#114;&#100;&#119;&#x61;&#114;&#101;&#x2e;&#x63;&#97;&#x6d;&#x65;&#x72;&#x61;&#x2e;&#112;&#114;&#111;&#x76;&#x69;&#x64;&#x65;&#x72;&#x40;&#50;&#46;&#52;&#45;&#115;&#x65;&#114;&#118;&#x69;&#x63;&#x65;&#x5f;&#x36;&#52;">&#x61;&#x6e;&#x64;&#114;&#x6f;&#x69;&#x64;&#x2e;&#x68;&#x61;&#114;&#100;&#119;&#x61;&#114;&#101;&#x2e;&#x63;&#97;&#x6d;&#x65;&#x72;&#x61;&#x2e;&#112;&#114;&#111;&#x76;&#x69;&#x64;&#x65;&#x72;&#x40;&#50;&#46;&#52;&#45;&#115;&#x65;&#114;&#118;&#x69;&#x63;&#x65;&#x5f;&#x36;&#52;</a>“程序启动Provider进程，并加入HW Service Manager中接受统一管理。在改过程中实例化一个 LegacyCameraProviderImpl_2_4 对象，通过 hw_get_module 标准方法 获取HAL 模块。这边指的是 <strong>camera.qcom.so</strong> 。</p>
+<h2 id="Camera-Provider-Init-函数总括"><a href="#Camera-Provider-Init-函数总括" class="headerlink" title="Camera Provider Init 函数总括"></a>Camera Provider Init 函数总括</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// hardware/interfaces/camera/provider/2.4/default/LegacyCameraProviderImpl_2_4.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">LegacyCameraProviderImpl_2_4::initialize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">camera_module_t</span> *rawModule;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//获取 camera.qcom.so 可以理解为和 camxhal3entry.cpp 建立联系</span></span><br><span class="line">    <span class="keyword">int</span> err = hw_get_module(CAMERA_HARDWARE_MODULE_ID, (<span class="keyword">const</span> <span class="keyword">hw_module_t</span> **)&amp;rawModule); 		</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//将 camera.qcom.so 获取的句柄保存在 mModule 对象中 ，该函数定义在 CameraModule.cpp </span></span><br><span class="line">    mModule = <span class="keyword">new</span> CameraModule(rawModule);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//我们可以跟进去看看 init() 非常明显 实际就是进行 camx 的初始化，camxhal3entry.cpp  &#123; CAMX:: init()&#125; </span></span><br><span class="line">    <span class="comment">//int CameraModule::init() 这个函数将会调用 getNumberOfCameras() </span></span><br><span class="line">    <span class="comment">//就此 camx-chi 的一系列初始化操作 拉开序幕</span></span><br><span class="line">    err = mModule-&gt;init(); </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置回调函数，用于接受camx-chi的数据和事件</span></span><br><span class="line">    err = mModule-&gt;setCallbacks(<span class="keyword">this</span>);</span><br><span class="line">    </span><br><span class="line">    mNumberOfLegacyCameras = mModule-&gt;getNumberOfCameras();</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">// mInitFailed</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>init 函数结束之后，Camera Provider进程便一直便存在于系统中,监听着来自Camera Service的调用。</p>
+<h2 id="Camera-Provider-Init-分解"><a href="#Camera-Provider-Init-分解" class="headerlink" title="Camera Provider Init 分解"></a>Camera Provider Init 分解</h2><p>通过上面的总括可以理解为 <strong>Provider</strong> 最终目的获取 <strong>Camx-Chi</strong> 的 <strong>setting</strong> 以及 <strong>HW</strong> 资源。然后保存起来返回给上层，供后面使用。</p>
+<p>二话不说先上一张大图</p>
+<p><img src="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/image-20201026113612765.png"></p>
+<h3 id="get-number-of-cameras-函数介绍"><a href="#get-number-of-cameras-函数介绍" class="headerlink" title="get_number_of_cameras 函数介绍"></a>get_number_of_cameras 函数介绍</h3><p>这个函数是一切美好的开始，她的最先调用就是上面介绍的provide init 函数的 <strong>CameraModule::init()</strong> </p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//hardware/interfaces/camera/common/1.0/default/CameraModule.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">CameraModule::init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ATRACE_CALL();</span><br><span class="line">    <span class="keyword">int</span> res = OK;</span><br><span class="line">    <span class="keyword">if</span> (getModuleApiVersion() &gt;= CAMERA_MODULE_API_VERSION_2_4 &amp;&amp;</span><br><span class="line">            mModule-&gt;init != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        ATRACE_BEGIN(<span class="string">&quot;camera_module-&gt;init&quot;</span>);</span><br><span class="line">        res = mModule-&gt;init();</span><br><span class="line">        ATRACE_END();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//将会走到 vendor/proprietary/camx/src/coer/hal/camxhal3.cpp中</span></span><br><span class="line">    mNumberOfCameras = getNumberOfCameras();</span><br><span class="line">    mCameraInfoMap.setCapacity(mNumberOfCameras);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>CameraModule::init()</strong> ，这个函数调用 <strong>getNumberOfCameras()</strong> 。最终调用到 <strong>get_number_of_cameras()</strong> 这个函数已经是干到camx了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/coer/hal/camxhal3.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">get_number_of_cameras</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line">    INT numCameras;</span><br><span class="line">    <span class="comment">//将会走到 vendor/proprietary/camx/src/coer/hal/camxhal3module.cpp中</span></span><br><span class="line">    <span class="comment">//会调用到 HAL3Module的构造函数</span></span><br><span class="line">    numCameras = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(HAL3Module::GetInstance()-&gt;GetNumCameras());</span><br><span class="line">    ......</span><br><span class="line">    <span class="keyword">return</span> numCameras;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数主要有两个作用：</p>
+<ul>
+<li>是通过 <strong>HAL3Module</strong> 类的构造函数会获取 CAMX-CHI 的信息</li>
+<li>加载 <strong>com.qti.chi.override.so</strong>  模块，映射 CAMX-CHI 之间的接口</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/coer/hal/camxhal3module.cpp</span></span><br><span class="line">HAL3Module::HAL3Module()</span><br><span class="line">&#123;</span><br><span class="line">    CamxResult result = CamxResultSuccess;</span><br><span class="line">    CSLCameraPlatform CSLPlatform = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    CAMX_LOG_CONFIG(CamxLogGroupHAL, <span class="string">&quot;***************************************************&quot;</span>);</span><br><span class="line">    CAMX_LOG_CONFIG(CamxLogGroupHAL, <span class="string">&quot;SHA1:     %s&quot;</span>, CAMX_SHA1);</span><br><span class="line">    CAMX_LOG_CONFIG(CamxLogGroupHAL, <span class="string">&quot;COMMITID: %s&quot;</span>, CAMX_COMMITID);</span><br><span class="line">    CAMX_LOG_CONFIG(CamxLogGroupHAL, <span class="string">&quot;BUILD TS: %s&quot;</span>, CAMX_BUILD_TS);</span><br><span class="line">    CAMX_LOG_CONFIG(CamxLogGroupHAL, <span class="string">&quot;***************************************************&quot;</span>);</span><br><span class="line">    ......</span><br><span class="line">    <span class="comment">//到了这个位置已经是很亲切了，干到camx了</span></span><br><span class="line">    m_pStaticSettings = HwEnvironment::GetInstance()-&gt;GetStaticSettings();</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="HwEnvironment-Initialize-函数介绍"><a href="#HwEnvironment-Initialize-函数介绍" class="headerlink" title="HwEnvironment::Initialize() 函数介绍"></a>HwEnvironment::Initialize() 函数介绍</h3><p>通过 <strong>HAL3Module</strong> 构造函数会调用 <strong>HwEnvironment</strong> 类的构造，主体功能在 <strong>HwEnvironment::Initialize()</strong> 中实现</p>
+<details>
+<summary>HwEnvironment::Initialize()</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/coer/camxhwenvironment.cpp</span></span><br><span class="line"><span class="function">CamxResult <span class="title">HwEnvironment::Initialize</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CamxResult              result                  = CamxResultSuccess;</span><br><span class="line">    CSLInitializeParams     params                  = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    SettingsManager*        pStaticSettingsManager  = SettingsManager::Create(<span class="literal">NULL</span>);</span><br><span class="line">    ExternalComponentInfo*  pExternalComponent      = GetExternalComponent();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != pStaticSettingsManager)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">const</span> StaticSettings* pStaticSettings = pStaticSettingsManager-&gt;GetStaticSettings();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">NULL</span> != pStaticSettings)</span><br><span class="line">        &#123;</span><br><span class="line">            params.mode                                           = pStaticSettings-&gt;CSLMode;</span><br><span class="line">            params.emulatedSensorParams.enableSensorSimulation    = pStaticSettings-&gt;enableSensorEmulation;</span><br><span class="line">            params.emulatedSensorParams.dumpSensorEmulationOutput = pStaticSettings-&gt;dumpSensorEmulationOutput;</span><br><span class="line"></span><br><span class="line">            OsUtils::StrLCpy(params.emulatedSensorParams.sensorEmulatorPath,</span><br><span class="line">                             pStaticSettings-&gt;sensorEmulatorPath,</span><br><span class="line">                             <span class="keyword">sizeof</span>(pStaticSettings-&gt;sensorEmulatorPath));</span><br><span class="line"></span><br><span class="line">            OsUtils::StrLCpy(params.emulatedSensorParams.sensorEmulator,</span><br><span class="line">                             pStaticSettings-&gt;sensorEmulator,</span><br><span class="line">                             <span class="keyword">sizeof</span>(pStaticSettings-&gt;sensorEmulator));</span><br><span class="line"></span><br><span class="line">            result = CSLInitialize(&amp;params);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (CamxResultSuccess == result)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// Query the camera platform</span></span><br><span class="line">                result = QueryHwContextStaticEntryMethods();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (CamxResultSuccess == result)</span><br><span class="line">            &#123;</span><br><span class="line">                m_pHwFactory = m_staticEntryMethods.CreateHwFactory();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">NULL</span> == m_pHwFactory)</span><br><span class="line">                &#123;</span><br><span class="line">                    CAMX_ASSERT_ALWAYS_MESSAGE(<span class="string">&quot;Failed to create the HW factory&quot;</span>);</span><br><span class="line">                    result = CamxResultEFailed;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (CamxResultSuccess == result)</span><br><span class="line">            &#123;</span><br><span class="line">                m_pSettingsManager = m_pHwFactory-&gt;CreateSettingsManager();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">NULL</span> == m_pSettingsManager)</span><br><span class="line">                &#123;</span><br><span class="line">                    CAMX_ASSERT_ALWAYS_MESSAGE(<span class="string">&quot;Failed to create the HW settings manager&quot;</span>);</span><br><span class="line">                    result = CamxResultEFailed;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (CamxResultSuccess == result)</span><br><span class="line">            &#123;</span><br><span class="line">                m_staticEntryMethods.GetHWBugWorkarounds(&amp;m_workarounds);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        pStaticSettingsManager-&gt;Destroy();</span><br><span class="line">        pStaticSettingsManager = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    CAMX_ASSERT(<span class="literal">NULL</span> != pExternalComponent);</span><br><span class="line">    <span class="keyword">if</span> ((CamxResultSuccess == result) &amp;&amp; (<span class="literal">NULL</span> != pExternalComponent))</span><br><span class="line">    &#123;</span><br><span class="line">        result = ProbeChiComponents(pExternalComponent, &amp;m_numExternalComponent);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CamxResultSuccess == result)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Load the OEM sensor capacity customization functions</span></span><br><span class="line">        CAMXCustomizeCAMXInterface camxInterface;</span><br><span class="line">        camxInterface.pGetHWEnvironment = HwEnvironment::GetInstance;</span><br><span class="line">        CAMXCustomizeEntry(&amp;m_pOEMInterface, &amp;camxInterface);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CamxResultSuccess != result)</span><br><span class="line">    &#123;</span><br><span class="line">        CAMX_LOG_ERROR(CamxLogGroupCore, <span class="string">&quot;FATAL ERROR: Raise SigAbort. HwEnvironment initialization failed&quot;</span>);</span><br><span class="line">        m_numberSensors = <span class="number">0</span>;</span><br><span class="line">        OsUtils::RaiseSignalAbort();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        m_initCapsStatus = InitCapsInitialize;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<p>通过上面的代码可以看出 <strong>HwEnvironment::Initialize()</strong> 做的事情还是挺多的。下面我们开始分析</p>
+<ol>
+<li><p>获取camx的相关配置</p>
+<p>SettingsManager*        pStaticSettingsManager  = SettingsManager::Create(NULL);</p>
+<p>经过一系列调用最终会调到以下代码，加载配置参数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/coer/camxsettingsmanager.cpp</span></span><br><span class="line"><span class="function">CamxResult <span class="title">SettingsManager::Initialize</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    StaticSettings* pStaticSettings)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......    </span><br><span class="line">        <span class="comment">// Populate the default settings</span></span><br><span class="line">        InitializeDefaultSettings();</span><br><span class="line">        InitializeDefaultDebugSettings();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// Load the override settings from our override settings stores</span></span><br><span class="line">        result = LoadOverrideSettings(m_pOverrideSettingsStore);</span><br><span class="line">        result = LoadOverrideProperties(m_pOverrideSettingsStore, TRUE);</span><br><span class="line">        result = ValidateSettings();</span><br><span class="line"></span><br><span class="line">        DumpSettings();</span><br><span class="line">        m_pOverrideSettingsStore-&gt;DumpOverriddenSettings();</span><br><span class="line">    ......</span><br><span class="line">    	UpdateLogSettings();</span><br><span class="line"></span><br><span class="line">    	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>利用加载好的配置参数去初始化相关模块</p>
+<p>result = CSLInitialize(&amp;params);</p>
+<p>经过一个跳转表格进入以下代码</p>
+<details>
+<summary>CamxResult CSLInitializeHW()</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/csl/hw/camxcslhw.cpp</span></span><br><span class="line"><span class="function">CamxResult <span class="title">CSLInitializeHW</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CamxResult result                          = CamxResultEFailed;</span><br><span class="line">    CHAR       syncDeviceName[CSLHwMaxDevName] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (FALSE == CSLHwIsHwInstanceValid())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (TRUE == CSLHwEnumerateAndAddCSLHwDevice(CSLInternalHwVideodevice, CAM_VNODE_DEVICE_TYPE))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (TRUE == CSLHwEnumerateAndAddCSLHwDevice(CSLInternalHwVideoSubdevice, CAM_CPAS_DEVICE_TYPE))</span><br><span class="line">            &#123;</span><br><span class="line">                CAMX_LOG_VERBOSE(CamxLogGroupCSL, <span class="string">&quot;Platform family=%d, version=%d.%d.%d, cpas version=%d.%d.%d&quot;</span>,</span><br><span class="line">                    g_CSLHwInstance.pCameraPlatform.family,</span><br><span class="line">                    g_CSLHwInstance.pCameraPlatform.platformVersion.majorVersion,</span><br><span class="line">                    g_CSLHwInstance.pCameraPlatform.platformVersion.minorVersion,</span><br><span class="line">                    g_CSLHwInstance.pCameraPlatform.platformVersion.revVersion,</span><br><span class="line">                    g_CSLHwInstance.pCameraPlatform.CPASVersion.majorVersion,</span><br><span class="line">                    g_CSLHwInstance.pCameraPlatform.CPASVersion.minorVersion,</span><br><span class="line">                    g_CSLHwInstance.pCameraPlatform.CPASVersion.revVersion);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (FALSE == CSLHwEnumerateAndAddCSLHwDevice(CSLInternalHwVideoSubdeviceAll, <span class="number">0</span>))</span><br><span class="line">                &#123;</span><br><span class="line">                    CAMX_LOG_ERROR(CamxLogGroupCSL, <span class="string">&quot;No KMD devices found&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    CAMX_LOG_VERBOSE(CamxLogGroupCSL, <span class="string">&quot;Total KMD subdevices found =%d&quot;</span>, g_CSLHwInstance.kmdDeviceCount);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// Init the memory manager data structures here</span></span><br><span class="line">                CamX::Utils::Memset(g_CSLHwInstance.memManager.bufferInfo, <span class="number">0</span>, <span class="keyword">sizeof</span>(g_CSLHwInstance.memManager.bufferInfo));</span><br><span class="line">                <span class="comment">// Init the sync manager here</span></span><br><span class="line">                g_CSLHwInstance.lock-&gt;Lock();</span><br><span class="line">                g_CSLHwInstance.pSyncFW = CamX::SyncManager::GetInstance();</span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">NULL</span> != g_CSLHwInstance.pSyncFW)</span><br><span class="line">                &#123;</span><br><span class="line">                    CSLHwGetSyncHwDevice(syncDeviceName, CSLHwMaxDevName);</span><br><span class="line">                    CAMX_LOG_VERBOSE(CamxLogGroupCSL, <span class="string">&quot;Sync device found = %s&quot;</span>, syncDeviceName);</span><br><span class="line">                    result = g_CSLHwInstance.pSyncFW-&gt;Initialize(syncDeviceName);</span><br><span class="line">                    <span class="keyword">if</span> (CamxResultSuccess != result)</span><br><span class="line">                    &#123;</span><br><span class="line">                        CAMX_LOG_ERROR(CamxLogGroupCSL, <span class="string">&quot;CSL failed to initialize SyncFW&quot;</span>);</span><br><span class="line">                        result = g_CSLHwInstance.pSyncFW-&gt;Destroy();</span><br><span class="line">                        g_CSLHwInstance.pSyncFW = <span class="literal">NULL</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                g_CSLHwInstance.lock-&gt;Unlock();</span><br><span class="line">                CSLHwInstanceSetState(CSLHwValidState);</span><br><span class="line">                result = CamxResultSuccess;</span><br><span class="line">                CAMX_LOG_VERBOSE(CamxLogGroupCSL, <span class="string">&quot;Successfully acquired requestManager&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                CAMX_LOG_ERROR(CamxLogGroupCSL, <span class="string">&quot;Failed to acquire CPAS&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            CAMX_LOG_ERROR(CamxLogGroupCSL, <span class="string">&quot;Failed to acquire requestManager invalid&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        CAMX_LOG_ERROR(CamxLogGroupCSL, <span class="string">&quot;CSL in Invalid State&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<p>这一部分我个人理解为，遍历所有kernel端的设备。获取相关接口以及需要的事件。与HAL层建立联系。具体分析以后可以单独写一篇文章分析</p>
+</li>
+<li><p>根据平台获取对应的入口方法</p>
+<p>这个暂时不知道是个什么鬼，先这样理解</p>
+<p>result = QueryHwContextStaticEntryMethods();</p>
+<p>经过一系列的调用最终是跑到了这里</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/csl/hwl/titan17x/camxtitan17xhwl.cpp</span></span><br><span class="line"><span class="function">CamxResult <span class="title">Titan17xGetStaticEntryMethods</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    HwContextStaticEntry* pStaticEntry)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CamxResult result = CamxResultSuccess;</span><br><span class="line"></span><br><span class="line">    pStaticEntry-&gt;Create                               = &amp;Titan17xContext::Create;</span><br><span class="line">    pStaticEntry-&gt;GetStaticMetadataKeysInfo            = &amp;Titan17xContext::GetStaticMetadataKeysInfo;</span><br><span class="line">    pStaticEntry-&gt;GetStaticCaps                        = &amp;Titan17xContext::GetStaticCaps;</span><br><span class="line">    pStaticEntry-&gt;CreateHwFactory                      = &amp;Titan17xFactory::Create;</span><br><span class="line">    pStaticEntry-&gt;QueryVendorTagsInfo                  = &amp;Titan17xContext::QueryVendorTagsInfo;</span><br><span class="line">    pStaticEntry-&gt;GetHWBugWorkarounds                  = &amp;Titan17xContext::GetHWBugWorkarounds;</span><br><span class="line">    pStaticEntry-&gt;QueryExternalComponentVendorTagsInfo = &amp;Titan17xContext::QueryExternalComponentVendorTagsInfo;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取CHI各个节点的接口</p>
+<p>result = ProbeChiComponents(pExternalComponent, &amp;m_numExternalComponent);</p>
+<p>遍历所有chi相关的.so库，将各个接口保存起来。这一块的代码撸的比较少，先记录这么多</p>
+</li>
+</ol>
+<p>到此处 HwEnvironment::Initialize() 这个函数就介绍的差不多了。日后慢慢完善</p>
+<h3 id="HwEnvironment-InitCaps-函数介绍"><a href="#HwEnvironment-InitCaps-函数介绍" class="headerlink" title="HwEnvironment::InitCaps()  函数介绍"></a>HwEnvironment::InitCaps()  函数介绍</h3><details>
+<summary>HwEnvironment::InitCaps()</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/coer/camxhwenvironment.cpp</span></span><br><span class="line"><span class="function">VOID <span class="title">HwEnvironment::InitCaps</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CamxResult    result = CamxResultSuccess;</span><br><span class="line"></span><br><span class="line">    m_pHWEnvLock-&gt;Lock();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (InitCapsRunning == m_initCapsStatus ||</span><br><span class="line">        InitCapsDone == m_initCapsStatus)</span><br><span class="line">    &#123;</span><br><span class="line">        m_pHWEnvLock-&gt;Unlock();</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    m_initCapsStatus = InitCapsRunning;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CamxResultSuccess == result)</span><br><span class="line">    &#123;</span><br><span class="line">        EnumerateDevices();</span><br><span class="line">        ProbeImageSensorModules();</span><br><span class="line">        EnumerateSensorDevices();</span><br><span class="line">        InitializeSensorSubModules();</span><br><span class="line">        InitializeSensorStaticCaps();</span><br><span class="line"></span><br><span class="line">        result = m_staticEntryMethods.GetStaticCaps(&amp;m_platformCaps[<span class="number">0</span>]);</span><br><span class="line">        <span class="comment">// copy the static capacity to remaining sensor&#x27;s</span></span><br><span class="line">        <span class="keyword">for</span> (UINT index = <span class="number">1</span>; index &lt; m_numberSensors; index++)</span><br><span class="line">        &#123;</span><br><span class="line">            Utils::Memcpy(&amp;m_platformCaps[index], &amp;m_platformCaps[<span class="number">0</span>], <span class="keyword">sizeof</span>(m_platformCaps[<span class="number">0</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">NULL</span> != m_pOEMInterface-&gt;pInitializeExtendedPlatformStaticCaps)</span><br><span class="line">        &#123;</span><br><span class="line">            m_pOEMInterface-&gt;pInitializeExtendedPlatformStaticCaps(&amp;m_platformCaps[<span class="number">0</span>], m_numberSensors);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    CAMX_ASSERT(CamxResultSuccess == result);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CamxResultSuccess == result)</span><br><span class="line">    &#123;</span><br><span class="line">        InitializeHwEnvironmentStaticCaps();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    m_initCapsStatus = InitCapsDone;</span><br><span class="line"></span><br><span class="line">    m_pHWEnvLock-&gt;Unlock();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+</details>
+
+<p>这一波操作应该就是枚举各个Camera模组，检测硬件是否可以通信成功。</p>
+<ol>
+<li><p>Probe Sensor </p>
+<p>经过上述函数中 ProbeImageSensorModules() 会走到  ImageSensorModuleData::Probe()</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/proprietary/camx/src/core/camximagesensormoduledata.cpp</span></span><br><span class="line"><span class="function">CamxResult <span class="title">ImageSensorModuleData::Probe</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">                                                         BOOL*   pDetected,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                         INT32*  pDeviceIndex)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line">    <span class="comment">//获取上下电时序</span></span><br><span class="line">    UINT powerUpCmdSize     = GetSensorDataObject()-&gt;GetPowerSequenceCmdSize(TRUE);</span><br><span class="line">    UINT powerDownCmdSize   = GetSensorDataObject()-&gt;GetPowerSequenceCmdSize(FALSE);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//创建命令包管理</span></span><br><span class="line">    result = CmdBufferManager::Create(<span class="string">&quot;ImageSensorPacketManager&quot;</span>, &amp;packetResourceParams, &amp;pPacketManager);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//向CSL下发probe命令</span></span><br><span class="line">    result = CSLImageSensorProbe(pProbePacket-&gt;GetMemHandle(), pProbePacket-&gt;GetOffset(), &amp;probeResult);</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数的主要作用就是创建probe sensor 的命令包，然后下发到CSL</p>
+<p>将命令包提交到 CSL 通过ioctl下发到 Kernel</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vendor/qcom/proprietary/camx/src/csl/hw/camxcslhwinternalsensor.cpp</span></span><br><span class="line"><span class="function">CamxResult <span class="title">CSLHwInternalProbeSensorHW</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">                                          CSLMemHandle hPacket,</span></span></span><br><span class="line"><span class="function"><span class="params">                                          SIZE_T       offset,</span></span></span><br><span class="line"><span class="function"><span class="params">                                          INT32*       pDeviceIndex)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ......</span><br><span class="line">    ioctlCmd.op_code     = CAM_SENSOR_PROBE_CMD;</span><br><span class="line">    ioctlCmd.size        = <span class="keyword">sizeof</span>(ioctlCmd.handle);</span><br><span class="line">    ioctlCmd.handle_type = CAM_HANDLE_MEM_HANDLE;</span><br><span class="line">    ioctlCmd.reserved    = <span class="number">0</span>;</span><br><span class="line">    ioctlCmd.handle      = hPacket;</span><br><span class="line">    result = pLoophw-&gt;deviceOp.Ioctl(pLoophw, VIDIOC_CAM_CONTROL, &amp;ioctlCmd);</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/undefined/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/Repo%20%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Repo 常用命令
+                
+            </div>
+        </a>
+    
+    
+        <a href="/undefined/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Hexo 博客搭建</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+</section>
+        </div>
+        
+        
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
