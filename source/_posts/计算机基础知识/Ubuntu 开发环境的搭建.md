@@ -5,6 +5,33 @@ date: 2020-01-01 00:00:00
 tags: Ubuntu
 ---
 
+# 安装deepin下的截图工具
+
+------
+
+1. 下载软件包 [DownLoad](http://justcode.ikeepstudying.com/wp-content/uploads/2015/12/deepin-scrot_2.0-0deepin_all.zip)
+
+2. 如果在安装中提示缺少依赖 python-xlib，可利用下面命令安装缺少的依赖
+
+   ```bash
+   sudo apt-get install python-xlib
+   ```
+
+3. 安装相关插件
+
+   ```bash
+   sudo apt-get install aria2
+   sudo apt-get install python-webkit
+   ```
+
+4. 运行截图工具(可以设置快捷键)
+
+   ```bash
+   deepin-scrot
+   ```
+
+   
+
 # Samba 服务共享目录
 
 ------
