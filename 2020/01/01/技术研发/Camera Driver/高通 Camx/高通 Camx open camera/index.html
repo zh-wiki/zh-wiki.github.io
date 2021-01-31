@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    
+    <title>高通 Camx Camx open camera | Zhou&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="高通Camx">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Open Camera 的流程简介当用户打开了相机设备之后，便会发生如下过程：  APP调用CameraManager的openCamera方法，层层调用之后最终调用到Camera Service层中的CameraService::connectDevice方法 然后通过ICameraDevice::open()这一个HIDL接口通知Camera Provider层 在Camera Provide">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高通 Camx Camx open camera">
+<meta property="og:url" content="https://zh-wiki.github.io/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20open%20camera/index.html">
+<meta property="og:site_name" content="Zhou&#39;s Wiki">
+<meta property="og:description" content="Open Camera 的流程简介当用户打开了相机设备之后，便会发生如下过程：  APP调用CameraManager的openCamera方法，层层调用之后最终调用到Camera Service层中的CameraService::connectDevice方法 然后通过ICameraDevice::open()这一个HIDL接口通知Camera Provider层 在Camera Provide">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-12-31T16:00:03.000Z">
+<meta property="article:modified_time" content="2021-01-30T08:33:17.771Z">
+<meta property="article:author" content="Zhoujunwei">
+<meta property="article:tag" content="高通Camx">
+<meta name="twitter:card" content="summary">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="Zhou&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/open-sans/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+<script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    
+<script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+    
+
+
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Zhou&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">首页</a>
+                
+                    <a class="main-nav-link" href="/archives">归档</a>
+                
+                    <a class="main-nav-link" href="/categories">分类</a>
+                
+                    <a class="main-nav-link" href="/tags">标签</a>
+                
+                    <a class="main-nav-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tablesgenerator.com/html_tables">在线表格</a>
+                
+                    <a class="main-nav-link" href="/about">关于</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">首页</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">归档</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">分类</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">标签</a></td>
+                
+                    <td><a class="main-nav-link" target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tablesgenerator.com/html_tables">在线表格</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">关于</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索">
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id="categories">
+        <h3 class="widget-title">
+            <span>分类</span>
+            &nbsp;
+            <a id="allExpand" href="#">
+                <i class="fa fa-angle-double-down fa-2x"></i>
+            </a>
+        </h3>
+        
+        
+        
+         <ul class="unstyled" id="tree"> 
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            技术研发
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Android 研发总结
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Android%20%E7%A0%94%E5%8F%91%E6%80%BB%E7%BB%93/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/">Android 研发总结</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            Camera Driver
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            MTK 平台
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2019/11/30/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/MTK%20%E5%B9%B3%E5%8F%B0/MTK%20Camera%20Bring%20Up/">MTK Camera Bring Up</a></li>  <li class="file"><a href="/2019/11/30/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/MTK%20%E5%B9%B3%E5%8F%B0/MTK%20Camera%20%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D/">MTK Camera 架构介绍</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory open">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder-open"></i>
+                            &nbsp;
+                            高通 Camx
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20%E4%BB%8B%E7%BB%8D/">高通 Camx 介绍</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20server/">高通 Camx camera server</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20camera%20provider/">高通 Camx camera provider</a></li>  <li class="file active"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20open%20camera/">高通 Camx Camx open camera</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20config%20stream%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx config stream 代码流程</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20capture%20request%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx capture request 代码流程</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20capture%20result%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 Camx capture result 代码流程</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20Bring%20up/">高通 Camx Bring up</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            高通 MM
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2019/11/30/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D/">高通 mm 架构介绍</a></li>  <li class="file"><a href="/2019/11/30/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20%E6%9E%B6%E6%9E%84%20bring%20up/">高通 mm 架构 bring up</a></li>  <li class="file"><a href="/2019/11/30/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20INIT%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 mm INIT 代码流程</a></li>  <li class="file"><a href="/2019/11/30/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20MM/%E9%AB%98%E9%80%9A%20mm%20ConfigureStream%20%E4%BB%A3%E7%A0%81%E6%B5%81%E7%A8%8B/">高通 mm ConfigureStream 代码流程</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Camera 专业知识
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2021/01/21/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/camea%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">camera 基础知识</a></li>  <li class="file"><a href="/2021/01/21/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/Camera%20%E6%88%90%E5%83%8F%E5%8E%9F%E7%90%86%E5%92%8C%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/">Camera 成像原理和专业知识</a></li>  <li class="file"><a href="/2021/01/21/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/%E8%87%AA%E5%8A%A8%E5%AF%B9%E7%84%A6/">自动对焦专讲</a></li>  <li class="file"><a href="/2021/01/21/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86/%E5%9B%BE%E7%89%87%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E4%B8%8E%E8%BD%AC%E6%8D%A2/">图片数据格式与转换</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux Driver
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            V4L2
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20Driver/V4L2/%E4%BB%8E%E9%9B%B6%E5%86%99%E8%99%9A%E6%8B%9Fv4l2%E9%A9%B1%E5%8A%A8/">从零实现虚拟Camera Driver</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20Driver/V4L2/V4L2%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%86%99%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/">从零开始写V4L2应用程序</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            Linux 命令
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/ADB%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">ADB 常用命令</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/Git%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Git 常用命令</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Linux%20%E5%91%BD%E4%BB%A4/Repo%20%E5%B8%B8%E7%94%A8%E6%8C%87%E4%BB%A4/">Repo 常用命令</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            XTS 相关
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2019/11/30/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/XTS%20%E7%9B%B8%E5%85%B3/XTS%20%E6%B5%8B%E8%AF%95%E6%8C%87%E5%8D%97/">XTS 测试指南</a></li>  <li class="file"><a href="/2021/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/XTS%20%E7%9B%B8%E5%85%B3/ITS%20%E9%97%AE%E9%A2%98%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90/">ITS 测试案例分析</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            项目随笔
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/%E5%B0%8F%E7%B1%B3J19S%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/">小米J19S项目随笔</a></li>  <li class="file"><a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/%E4%B8%89%E6%98%9Fo1o2o3%E9%A1%B9%E7%9B%AE%E9%9A%8F%E7%AC%94/">三星o1o2o3项目随笔</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            生活学习
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/10/04/%E7%94%9F%E6%B4%BB%E5%AD%A6%E4%B9%A0/%E7%94%9F%E6%B4%BB%E5%AD%A6%E4%B9%A0/">生活学习</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            程序语言
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            C++
+                        </a>
+                         <ul class="unstyled" id="tree"> 
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            设计模式
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/C++/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">工厂模式</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            MarkDown
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/MarkDown/MarkDown%20%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/">MarkDown 常用语法</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            UML
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/09/29/%E7%A8%8B%E5%BA%8F%E8%AF%AD%E8%A8%80/UML/UML/">UML</a></li>  </ul> 
+                    </li> 
+                     </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            艺术
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/10/04/%E8%89%BA%E6%9C%AF/%E8%89%BA%E6%9C%AF/">艺术</a></li>  </ul> 
+                    </li> 
+                    
+                    <li class="directory">
+                        <a href="#" data-role="directory">
+                            <i class="fa fa-folder"></i>
+                            &nbsp;
+                            计算机基础知识
+                        </a>
+                         <ul class="unstyled" id="tree">  <li class="file"><a href="/2020/01/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Ubuntu%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Ubuntu 开发环境的搭建</a></li>  <li class="file"><a href="/2020/01/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/ubuntu%20%E4%B8%AD%E6%90%AD%E5%BB%BAgitlab%E6%9C%8D%E5%8A%A1%E5%99%A8/">Ubuntu 中搭建gitlab服务器</a></li>  <li class="file"><a href="/2020/01/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Hexo%20%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">Hexo 博客搭建</a></li>  <li class="file"><a href="/2020/01/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Centos%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Centos 开发环境的搭建</a></li>  <li class="file"><a href="/2020/01/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Arch%20Linux%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/">Arch Linux 开发环境的搭建</a></li>  </ul> 
+                    </li> 
+                     <li class="file"><a href="/2021/01/30/index/">Welcome Zhou jun wei's Wiki Site</a></li>  </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+                
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });  
+        });
+    </script>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-技术研发/Camera Driver/高通 Camx/高通 Camx open camera" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/">技术研发</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera-Driver/">Camera Driver</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera-Driver/%E9%AB%98%E9%80%9A-Camx/">高通 Camx</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E9%AB%98%E9%80%9ACamx/" rel="tag">高通Camx</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2020/01/01/%E6%8A%80%E6%9C%AF%E7%A0%94%E5%8F%91/Camera%20Driver/%E9%AB%98%E9%80%9A%20Camx/%E9%AB%98%E9%80%9A%20Camx%20open%20camera/">
+            <time datetime="2019-12-31T16:00:03.000Z" itemprop="datePublished">2020-01-01</time>
+        </a>
+    </div>
+
+
+                        
+                            <i class="fa fa-bar-chart"></i>
+                            <span id="busuanzi_container_site_pv"><span id="busuanzi_value_page_pv"></span></span>    
+                        
+                        
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/raw/zjw-dev/source/_posts/技术研发/Camera Driver/高通 Camx/高通 Camx open camera.md"> Source </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/edit/zjw-dev/source/_posts/技术研发/Camera Driver/高通 Camx/高通 Camx open camera.md"> Edit </a>
+                            </div>
+                            <div class="article-meta-button">
+                                <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zh-wiki/zh-wiki.github.io/commits/zjw-dev/source/_posts/技术研发/Camera Driver/高通 Camx/高通 Camx open camera.md"> History </a>
+                            </div>
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            高通 Camx Camx open camera
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">文章目录</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Open-Camera-%E7%9A%84%E6%B5%81%E7%A8%8B%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">Open Camera 的流程简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#APP-Open-Camera-%E6%B5%81%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">APP Open Camera 流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Camera-Server-Open-%E6%B5%81%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">Camera Server Open 流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA-CameraDevcieClient"><span class="toc-number">3.1.</span> <span class="toc-text">创建 CameraDevcieClient</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-CameraDevcieClient"><span class="toc-number">3.2.</span> <span class="toc-text">初始化 CameraDevcieClient</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Camera3Device-%E7%BB%93%E6%9E%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.2.1.</span> <span class="toc-text">Camera3Device 结构介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FrameProcessBase-%E7%BB%93%E6%9E%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.2.2.</span> <span class="toc-text">FrameProcessBase 结构介绍</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Provider-Open-%E6%B5%81%E7%A8%8B"><span class="toc-number">4.</span> <span class="toc-text">Provider Open 流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Camx-Open-%E6%B5%81%E7%A8%8B"><span class="toc-number">5.</span> <span class="toc-text">Camx Open 流程</span></a></li></ol>
+                </div>
+            
+        
+        
+            <h1 id="Open-Camera-的流程简介"><a href="#Open-Camera-的流程简介" class="headerlink" title="Open Camera 的流程简介"></a>Open Camera 的流程简介</h1><p>当用户打开了相机设备之后，便会发生如下过程：</p>
+<ol>
+<li>APP调用CameraManager的openCamera方法，层层调用之后最终调用到Camera Service层中的CameraService::connectDevice方法</li>
+<li>然后通过ICameraDevice::open()这一个HIDL接口通知Camera Provider层</li>
+<li>在Camera Provider层内部又通过调用之前获取的camera_module_t中methods的open方法来获取一个Camera 设备，对应于HAL中的camera3_device_t结构体</li>
+<li>在Camera Provider层调用获取到的camera3_device_t的initialize方法进行初始化动作</li>
+</ol>
+<p>代码大概流程走向</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//APP 端 open Camera</span></span><br><span class="line">CameraManager::openCamera() </span><br><span class="line">    <span class="comment">//Camera Server</span></span><br><span class="line">    CameraService::connectDevice()</span><br><span class="line">    	<span class="comment">//通过HIDL接口</span></span><br><span class="line">    	ICameraDevice::open()</span><br><span class="line">    		<span class="comment">//camera provider</span></span><br><span class="line">    		<span class="keyword">camera_module_t</span>::methods::open()</span><br><span class="line">    			<span class="comment">//接下来就是进行一些初始化操作</span></span><br><span class="line">    	 		<span class="keyword">camera3_device_t</span>::initialize()</span><br></pre></td></tr></table></figure>
+
+<h1 id="APP-Open-Camera-流程"><a href="#APP-Open-Camera-流程" class="headerlink" title="APP Open Camera 流程"></a>APP Open Camera 流程</h1><p>App端主要做了以下几点工作</p>
+<ol>
+<li><p>获取 CameraManager 服务</p>
+</li>
+<li><p>打开指定的 Camera</p>
+<ul>
+<li>获取 Camera Server</li>
+<li>调用 cameraService.connectDevice() 去连接打开设备，并且将上层传下来的回调传入Camera Server</li>
+<li>返回Device给App端</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//apk端获取CameraManager 服务</span></span><br><span class="line">mCamManager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);  </span><br><span class="line"><span class="comment">//打开指定camera</span></span><br><span class="line">--&gt; mCamManager.openCamera(mCameraId, mStateCallback, null);    </span><br><span class="line"><span class="comment">//frameworks/base/core/java/android/hardware/camera2/CameraManager.java</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">openCamera</span><span class="params">(@NonNull String cameraId, @NonNull @CallbackExecutor Executor executor, @NonNull <span class="keyword">final</span> CameraDevice.StateCallback callback)</span></span></span><br><span class="line">   |--&gt; openCameraForUid(cameraId, callback, executor, USE_CALLING_UID)</span><br><span class="line">   |   |--&gt; openCameraDeviceUserAsync(cameraId, callback, executor, clientUid);</span><br><span class="line">   |   |   |--&gt; CameraDevice device = null; <span class="comment">//初始化CameraDevice</span></span><br><span class="line">   |   |   | <span class="comment">//实例化　new android.hardware.camera2.impl.CameraDeviceImpl</span></span><br><span class="line">   |   |   |--&gt; android.hardware.camera2.impl.CameraDeviceImpl deviceImpl = <span class="keyword">new</span> android.hardware.camera2.impl.CameraDeviceImpl(...) </span><br><span class="line">   |   |   |--&gt; ICameraDeviceCallbacks callbacks = deviceImpl.getCallbacks();   <span class="comment">//获取回调</span></span><br><span class="line">   |   |   |--&gt; ICameraService cameraService = CameraManagerGlobal.get().getCameraService();    <span class="comment">//获取CameraService 服务</span></span><br><span class="line">   |   |   |--&gt; cameraUser = cameraService.connectDevice(callbacks, cameraId, mContext.getOpPackageName(), uid);    <span class="comment">//连接打开camera</span></span><br><span class="line">   |   |   |--&gt; <span class="keyword">goto</span> CONNECTDEVICE:    <span class="comment">//跳转到下面CONNECTDEVICE处进行分析</span></span><br><span class="line">   |   |   |--&gt; deviceImpl.setRemoteDevice(cameraUser);</span><br><span class="line">   |   |   |   |--&gt; mRemoteDevice = <span class="keyword">new</span> ICameraDeviceUserWrapper(remoteDevice);</span><br><span class="line">   |   |   |   |--&gt; mDeviceExecutor.execute(mCallOnOpened); <span class="comment">//这里是一个线程池</span></span><br><span class="line">   |   |   |   |   |--&gt; sessionCallback = mSessionStateCallback;    <span class="comment">//获取session cb</span></span><br><span class="line">   |   |   |   |   |--&gt; sessionCallback.onOpened(CameraDeviceImpl.<span class="keyword">this</span>);    <span class="comment">//通过session cb 返回device</span></span><br><span class="line">   |   |   |   |   |--&gt; mDeviceCallback.onOpened(CameraDeviceImpl.<span class="keyword">this</span>);    <span class="comment">//通过device cb 返回device,这里就是返回给apk端的CameraDevice了</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Camera-Server-Open-流程"><a href="#Camera-Server-Open-流程" class="headerlink" title="Camera Server Open 流程"></a>Camera Server Open 流程</h1><p>对于打开相机设备动作,主要由connectDevice来实现，当CameraFramework通过调用ICameraService的connectDevice接口的时候,主要做了两件事情：</p>
+<ul>
+<li>创建CameraDeviceClient。</li>
+<li>对CameraDeviceClient进行初始化,并将其返回给Framework。</li>
+</ul>
+<h2 id="创建-CameraDevcieClient"><a href="#创建-CameraDevcieClient" class="headerlink" title="创建 CameraDevcieClient"></a>创建 CameraDevcieClient</h2><p>CameraDeviceClient 该类在打开设备的时候被实例化，一次打开设备的操作对应一个该类对象，它实现了ICameraDeviceUser接口，以AIDL方式暴露接口给Camera Framework进行调用，于此同时,该类在打开设备的过程中，获取了来自Camera Framework对于ICameraDeviceCallback接口的实现代理，通过该代理可以将结果上传至Camera Framewor中。我个人的理解其实这个类就是 framework 与 Camera 的通信入口。</p>
+<p>代码流程如下：</p>
+<ul>
+<li>首先实例化一个CameraDeviceClient</li>
+<li>将来自Framework针对ICameraDeviceCallback的实现存入CameraDeviceClient中，一旦有结果产生便可以将结果通过这个回调回传给Framework</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//frameworks/av/services/camera/libcameraservice/CameraService.cpp</span></span><br><span class="line"><span class="function">Status <span class="title">CameraService::connectDevice</span><span class="params">(<span class="keyword">const</span> sp&lt;hardware::camera2::ICameraDeviceCallbacks&gt;&amp; cameraCb, <span class="keyword">const</span> String16&amp; cameraId, <span class="keyword">const</span> String16&amp; clientPackageName, <span class="keyword">int</span> clientUid, sp&lt;hardware::camera2::ICameraDeviceUser&gt;* device)</span> <span class="comment">//最后一个参数是返回值</span></span></span><br><span class="line">   |--&gt; connectHelper&lt;hardware::camera2::ICameraDeviceCallbacks,CameraDeviceClient&gt;(...) //模板，CALLBACK 为hardware::camera2::ICameraDeviceCallbacks， CLIENT： CameraDeviceClient</span><br><span class="line">   |   |--&gt; validateConnectLocked(...) <span class="comment">//关于一些权限的判断，如果没有权限或者非法访问这里会直接退出</span></span><br><span class="line">   |   |--&gt; <span class="keyword">int</span> deviceVersion = getDeviceVersion(cameraId, <span class="comment">/*out*/</span>&amp;facing) <span class="comment">//获取device version, 为之后的实例化哪一个client 做准备</span></span><br><span class="line">   |   |--&gt; makeClient(..., deviceVersion, effectiveApiLevel, ...) <span class="comment">//这里主要是这两个参数决定了实例化哪一个client，</span></span><br><span class="line">   |   |--&gt; *client = <span class="keyword">new</span> CameraDeviceClient(cameraService, tmp, packageName, cameraId,facing, clientPid, clientUid, servicePid) <span class="comment">//这里是实例化了CameraDeviceClient</span></span><br><span class="line">   |   |--&gt; client = <span class="keyword">static_cast</span>&lt;CLIENT*&gt;(tmp.get()); <span class="comment">//取得makeClient中实例化好的client</span></span><br><span class="line">   |   |--&gt; client-&gt;initialize(mCameraProviderManager, mMonitorTags); <span class="comment">//开始初始化</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="初始化-CameraDevcieClient"><a href="#初始化-CameraDevcieClient" class="headerlink" title="初始化 CameraDevcieClient"></a>初始化 CameraDevcieClient</h2><p>CameraDeviceClient的初始化工作流程：</p>
+<ul>
+<li>调用父类Camera2ClientBase的initialize方法进行初始化</li>
+<li>实例化FrameProcessorBase对象并且将内部的Camera3Device对象传入其中,这样就建立了和Camera3Device的联系,之后将内部线程运行起来,等待来自Camera3Device的结果</li>
+<li>将CameraDeviceClient注册到内部,这样就建立了与CameraDeviceClient的联系</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//file : frameworks/av/services/camera/libcameraservice/api2/CameraDeviceClient.cpp</span></span><br><span class="line"><span class="function"><span class="keyword">status_t</span> <span class="title">CameraDeviceClient::initialize</span><span class="params">(sp&lt;CameraProviderManager&gt; manager, <span class="keyword">const</span> String8&amp; monitorTags)</span></span></span><br><span class="line">   |--&gt; initializeImpl(manager, monitorTags)</span><br><span class="line">   |--&gt; mFrameProcessor = <span class="keyword">new</span> FrameProcessorBase(mDevice); <span class="comment">//实例化FrameProcessorBase对象</span></span><br><span class="line">   |   |--&gt; Camera2ClientBase::initialize(providerPtr, monitorTags)</span><br><span class="line">   <span class="comment">//file:  frameworks/av/services/camera/libcameraservice/common/Camera2ClientBase.cpp</span></span><br><span class="line">   |   |--&gt; <span class="keyword">status_t</span> Camera2ClientBase&lt;TClientBase&gt;::initialize(sp&lt;CameraProviderManager&gt; manager, <span class="keyword">const</span> String8&amp; monitorTags)</span><br><span class="line">   |   |   |--&gt; initializeImpl(manager, monitorTags)</span><br><span class="line">   |   |   |   |--&gt; mDevice-&gt;initialize(providerPtr, monitorTags)   <span class="comment">//这里的mDevice 是在 Camera2ClientBase初始化的时候传入的  mDevice(new Camera3Device(cameraId))</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Camera3Device-结构介绍"><a href="#Camera3Device-结构介绍" class="headerlink" title="Camera3Device 结构介绍"></a>Camera3Device 结构介绍</h3><ul>
+<li>主要实现了对Camera Provider 的ICameraDeviceCallbacks会调接口的实现，通过该接口接收来自Provider的结果上传进而传给CameraDeviceClient</li>
+<li>Camera3Device会将事件通过notify方法给到CameraDeviceClient</li>
+<li>Camera3Device中RequestThread主要用于处理Request的接收与下发工作</li>
+</ul>
+<p>Camera3Device 初始化</p>
+<ul>
+<li>通过调用CameraProviderManager的openSession方法打开并获取一个Provider中的ICameraDeviceSession代理</li>
+<li>实例化一个HalInterface对象,将之前获取的ICameraDeviceSession代理存入其中,最后将RequestThread线程运行起来,等待request的下发</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//file: device3/Camera3Device.cpp</span></span><br><span class="line"> <span class="function"><span class="keyword">status_t</span> <span class="title">Camera3Device::initialize</span><span class="params">(sp&lt;CameraProviderManager&gt; manager, <span class="keyword">const</span> String8&amp; monitorTags)</span></span></span><br><span class="line"> |--&gt; status_t res = manager-&gt;openSession(mId.string(), this, /*out*/ &amp;session)   //CameraProviderManager openSession</span><br><span class="line"> <span class="comment">//file: common/CameraProviderManager.cpp</span></span><br><span class="line">   |   |--&gt; <span class="function"><span class="keyword">status_t</span> <span class="title">CameraProviderManager::openSession</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;id, <span class="keyword">const</span> sp&lt;device::V3_2::ICameraDeviceCallback&gt;&amp; callback, sp&lt;device::V3_2::ICameraDeviceSession&gt; *session)</span></span></span><br><span class="line">   |   |   |--&gt; auto interface = deviceInfo3-&gt;startDeviceInterface&lt;CameraProviderManager::ProviderInfo::DeviceInfo3::InterfaceT&gt;()</span><br><span class="line">   |   |   |   |--&gt; <span class="keyword">const</span> sp&lt;provider::V2_4::ICameraProvider&gt; interface = startProviderInterface()  <span class="comment">//获取provider</span></span><br><span class="line">   |   |   |   |--&gt; interface-&gt;getCameraDeviceInterface_V3_x(name, [&amp;status, &amp;cameraInterface](hidl_cb) <span class="comment">//这里的hidl_cb 指的是回调接口，provider 会将device 指针返回回来，当然这个指针是跨进程能够调用的，具体怎么实现的暂时不清楚，暂且不管</span></span><br><span class="line">   |   |   |--&gt; interface-&gt;open(callback, [&amp;status, &amp;session](Status s, <span class="keyword">const</span> sp&lt;device::V3_2::ICameraDeviceSession&gt;&amp; cameraSession)    <span class="comment">//这里就调用的provider部分的Device的open接口</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="FrameProcessBase-结构介绍"><a href="#FrameProcessBase-结构介绍" class="headerlink" title="FrameProcessBase 结构介绍"></a>FrameProcessBase 结构介绍</h3><ul>
+<li>meta data以及image data 会给到 FrameProcessBase</li>
+<li>FrameProcessBase主要用于metadata以及image data的中转处理</li>
+</ul>
+<h1 id="Provider-Open-流程"><a href="#Provider-Open-流程" class="headerlink" title="Provider Open 流程"></a>Provider Open 流程</h1><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//file: device/3.2/default/CameraDevice.cpp</span></span><br><span class="line"><span class="function">Return&lt;<span class="keyword">void</span>&gt; <span class="title">CameraDevice::open</span><span class="params">(<span class="keyword">const</span> sp&lt;ICameraDeviceCallback&gt;&amp; callback, ICameraDevice::open_cb _hidl_cb)</span></span></span><br><span class="line"><span class="function"> <span class="comment">//这里的mModule 是CameraModule实例，在provider调用etCameraDeviceInterface_V3_x 方法时通过实例化device deviceImpl = new </span></span></span><br><span class="line"><span class="function"> <span class="comment">//android::hardware::camera::device::V3_4::implementation::CameraDevice(mModule, cameraId, mCameraDeviceNames) 传入，</span></span></span><br><span class="line"><span class="function"> <span class="comment">//而mModule 是在provider初始化的时候创建，里面获取了camera hw module实例,关于proviser的初始化参见provider_initialize</span></span></span><br><span class="line"> |--&gt; mModule-&gt;open(mCameraId.c_str(), reinterpret_cast&lt;hw_device_t**&gt;(&amp;device)) </span><br><span class="line"> <span class="comment">//file: common/1.0/default/CameraModule.cpp</span></span><br><span class="line"> |--&gt; <span class="function"><span class="keyword">int</span> <span class="title">CameraModule::open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* id, struct <span class="keyword">hw_device_t</span>** device)</span></span></span><br><span class="line"> |   |--&gt; filterOpenErrorCode(mModule-&gt;common.methods-&gt;open(&amp;mModule-&gt;common, id, device))</span><br></pre></td></tr></table></figure>
+
+<h1 id="Camx-Open-流程"><a href="#Camx-Open-流程" class="headerlink" title="Camx Open 流程"></a>Camx Open 流程</h1>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/2020/01/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Arch%20Linux%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">上一篇</strong>
+            <div class="article-nav-title">
+                
+                    Arch Linux 开发环境的搭建
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2020/01/01/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/Centos%20%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E7%9A%84%E6%90%AD%E5%BB%BA/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">下一篇</strong>
+            <div class="article-nav-title">Centos 开发环境的搭建</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+</section>
+        </div>
+        
+        
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true,
+            TeX: {
+                equationNumbers: {
+                  autoNumber: 'AMS'
+                }
+            }
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
