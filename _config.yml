@@ -15,7 +15,7 @@ timezone: Asia/Shanghai
 ## If your site is put in a subdirectory, set url as 'http://example.com/child' and root as '/child/'
 url: https://zh-wiki.github.io/
 root: /
-permalink: :wiki/:title/
+permalink: :year/:month/:day/:title/
 permalink_defaults:
 
 # Directory
