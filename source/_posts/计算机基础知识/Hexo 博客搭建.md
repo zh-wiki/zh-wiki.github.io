@@ -12,7 +12,19 @@ tags: Hexo
 sudo npm install --unsafe-perm --verbose -g hexo
 ```
 
+# 安装nodejs
+
+------
+
+```bash
+curl -sL https://deb.nodesource.com/setup_15.x | sudo bash -
+sudo apt install -y nodejs
+```
+
+
+
 # 同步本地图片与网络图片
+
 ------
 
 1. 安装插件
